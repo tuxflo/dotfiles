@@ -260,8 +260,7 @@ fi
 # ------------------------------------------------------------------------------
 
 # get / check for updates
-alias apt-update="sudo apt-get update"
-alias apt-upgrade="sudo apt-get update && sudo apt-get upgrade && sudo apt-get clean"
+alias pacman -Syu="sudo pacman -Syu"
 
 
 # ------------------------------------------------------------------------------
