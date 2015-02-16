@@ -81,7 +81,7 @@ endif
 
 " ----------------------------------------
 
-"Bundle 'terryma/vim-multiple-cursors'
+Bundle 'terryma/vim-multiple-cursors'
 
 " ----------------------------------------
 
