@@ -64,7 +64,7 @@ doIt()
   read -p "Do you want to use the zsh-shell? (y/n) " -n 1 yesOrNo
   echo
   if [[ $yesOrNo =~ ^[Yy]$ ]]; then
-    sudo apt-get install zsh
+    sudo pacman -S zsh
     chsh -s $(which zsh)
   fi
 
