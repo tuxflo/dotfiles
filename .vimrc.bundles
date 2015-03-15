@@ -83,6 +83,7 @@ endif
 
 Bundle 'terryma/vim-multiple-cursors'
 
+Bundle 'valloric/MatchTagAlways'
 " ----------------------------------------
 
 "Bundle 'coderifous/textobj-word-column.vim'
