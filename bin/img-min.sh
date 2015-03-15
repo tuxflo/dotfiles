@@ -26,7 +26,7 @@
 #   3. "Bash Floating Point Comparison", http://unstableme.blogspot.com/2008/06/bash-float-comparison-bc.html
 
 if [ -z $1 ] || [ -z $2 ]; then
-  echo "Usage $0 <image> <dst>"
+  echo "Usage $0 <image> <dst> [<quality>]"
   exit 1
 fi
 
@@ -34,6 +34,8 @@ MIN_UNIQUE_COLORS=4096
 
 src=$1
 dst=$2
+quality=$3
+src_ext=$(echo "${src}" | tr '[:upper:]' '[:lower:]')
 
 if [ ! -f $src ]; then
   echo "File $src does not exist"
@@ -52,6 +54,7 @@ do_png()
 {
   local src=$1
   local tmpfile=$2
+  local quality=$3
   local pngs=("$src") # always include existing file
   local outfile=""
 
@@ -64,7 +67,11 @@ do_png()
   fi
 
   if [ $(which pngquant) ]; then
-    pngquant --quality=75-100 "$tmpfile"
+    if [ $quality ]; then
+      pngquant --quality=${quality} "$tmpfile"
+    else
+      pngquant --quality=75-100 "$tmpfile"
+    fi
     outfile="${tmpfile::$((${#tmpfile}-4))}-fs8${tmpfile:$((${#tmpfile}-4))}"
     pngs[${#pngs[@]}]="$outfile"
   fi
@@ -101,8 +108,8 @@ search_quality()
 {
   local src=$1
   local tmpfile=$2
+  local quality=$3
   local uc=`unique_colors "$src"`
-  local src_ext=""
   local use=""
 
   if [ $((uc < MIN_UNIQUE_COLORS)) ]; then
@@ -110,10 +117,9 @@ search_quality()
     # debug
     #echo "$uc < $MIN_UNIQUE_COLORS"
 
-    src_ext=$(echo "${src}" | tr '[:upper:]' '[:lower:]')
     if [ ".png" = ${src_ext:(-4)} ]; then
       cp -p $src $tmpfile
-      use=$(do_png "$src" "$tmpfile")
+      use=$(do_png "$src" "$tmpfile" "$quality")
       echo "use:$use"
       cp -p $use $tmpfile
       return
@@ -122,9 +128,20 @@ search_quality()
 
       local tmpfile_new=$(mktemp);
       cp -p $src $tmpfile_new
-      jpegtran -copy none -optimize "$tmpfile_new" > "$src"
+      jpegtran -copy none "$tmpfile_new" > "$src"
       rm $tmpfile_new;
     fi
+  fi
+
+  if [ $quality ]; then
+    if [ ".jpeg" = ${src_ext:(-5)} ] || [ ".jpg" = ${src_ext:(-4)} ]; then
+      convert $src TGA:- |
+        cjpeg -quality $quality -sample 1x1 -outfile $tmpfile -targa
+    else
+      convert -quality $quality $src $tmpfile
+    fi
+
+    return 1
   fi
 
   local qmin=75
@@ -163,7 +180,7 @@ search_quality()
   done
 }
 
-print_stats()
+check_image_stats()
 {
   local k0=$((`stat -c %s $src` / 1024))
   local k1=$((`stat -c %s $tmpfile` / 1024))
@@ -174,6 +191,26 @@ print_stats()
     kdiff=0
   fi
 
+  if [ $((k0-k1)) -lt 0 ]; then
+    if [ ".jpeg" = ${src_ext:(-5)} ] || [ ".jpg" = ${src_ext:(-4)} ]; then
+      jpegoptim --quiet --strip-all $src
+
+      local tmpfile_new=$(mktemp);
+      cp -p $src $tmpfile_new
+      jpegtran -copy none "$tmpfile_new" > "$tmpfile"
+      rm $tmpfile_new;
+    fi
+
+    k0=$((`stat -c %s $src` / 1024))
+    k1=$((`stat -c %s $tmpfile` / 1024))
+    kdiff=$((($k0-$k1) * 100 / $k0))
+
+    if [ $kdiff -eq 0 ]; then
+      k1=$k0
+      kdiff=0
+    fi
+  fi
+
   echo "Before:${k0}KB After:${k1}KB Saved:$((k0-k1))KB($kdiff%)"
   return $kdiff
 }
@@ -181,8 +218,7 @@ print_stats()
 
 ext=${src:(-3)}
 tmpfile="/tmp/imgmin$$.$ext"
-search_quality "$src" "$tmpfile"
-convert -strip "$tmpfile" "$dst"
-kdiff=print_stats
+search_quality "$src" "$tmpfile" "$quality"
+check_image_stats
 cp -p $tmpfile $dst
 rm -f $tmpfile
