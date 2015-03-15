@@ -60,14 +60,6 @@ doIt()
     return 0
   fi
 
-  # try zsh?
-  read -p "Do you want to use the zsh-shell? (y/n) " -n 1 yesOrNo
-  echo
-  if [[ $yesOrNo =~ ^[Yy]$ ]]; then
-    sudo pacman -S zsh
-    chsh -s $(which zsh)
-  fi
-
   # install vim-plugin-manager
   if [ ! -d ~/.vim/bundle/vundle ]; then
     mkdir ~/.vim/bundle
