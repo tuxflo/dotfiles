@@ -140,7 +140,8 @@ endif
 "set autowrite
 
 " Fast saving
-"nmap <leader>w :w!<cr>
+nmap <leader>w :w<cr>
+nmap <leader>q :q<cr>
 
 " :W sudo saves the file
 " (useful for handling the permission-denied error)
@@ -559,8 +560,8 @@ map <leader>bd :Bclose<cr>
 map <leader>ba :1,1000 bd!<cr>
 
 " Useful mappings for managing tabs
-nnoremap <C-Left> :tabprevious<cr>
-nnoremap <C-Right> :tabnext<cr>
+nnoremap <S-Left> :tabprevious<cr>
+nnoremap <S-Right> :tabnext<cr>
 map <leader>tn :tabnew<cr>
 map <leader>to :tabonly<cr>
 map <leader>tc :tabclose<cr>
