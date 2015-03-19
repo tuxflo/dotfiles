@@ -751,7 +751,7 @@ function! StripWhitespace()
 endfunction
 noremap <leader>sw :call StripWhitespace()<CR>
 " save a file as root (,W)
-noremap <leader>W :w !sudo tee % > /dev/null<CR>
+" noremap <leader>W :w !sudo tee % > /dev/null<CR>
 
 " multi-purpose tab key (auto-complete)
 function! InsertTabWrapper()
@@ -832,7 +832,7 @@ map <leader>s? z=
 noremap <Leader>m mmHmt:%s/<C-V><cr>//ge<cr>'tzt'm
 
 " Quickly open a buffer for scribble
-map <leader>q :e ~/buffer<cr>
+"map <leader>q :e ~/buffer<cr>
 
 " Quickly open a markdown buffer for scribble
 map <leader>x :e ~/buffer.md<cr>
