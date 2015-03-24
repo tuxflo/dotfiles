@@ -547,6 +547,10 @@ map <C-space> ?
 " Disable highlight when <leader><cr> is pressed
 map <silent> <leader><cr> :noh<cr>
 
+" leader l for tab next and leader h for tabprev
+map <leader>>l :tabnext<cr>
+map <leader>>h :tabprevious<cr>
+
 " Smart way to move between windows
 map <C-j> <C-W>j
 map <C-k> <C-W>k
@@ -560,8 +564,8 @@ map <leader>bd :Bclose<cr>
 map <leader>ba :1,1000 bd!<cr>
 
 " Useful mappings for managing tabs
-nnoremap <S-Left> :tabprevious<cr>
-nnoremap <S-Right> :tabnext<cr>
+nnoremap <C-Left> :tabprevious<cr>
+nnoremap <C-Right> :tabnext<cr>
 map <leader>tn :tabnew<cr>
 map <leader>to :tabonly<cr>
 map <leader>tc :tabclose<cr>
@@ -693,11 +697,12 @@ map 0 ^
 nnoremap Y y$
 
 " Yank and put system pasteboard with <Leader>y/p.
-noremap <Leader>y "*y
-noremap <Leader>Y "*y$
-nnoremap <Leader>yy "*yy
-noremap <Leader>p "*p
-noremap <Leader>P "*P
+noremap <Leader>y "+y
+noremap <Leader>Y "+y$
+nnoremap <Leader>yy "+yy
+noremap <Leader>p "+p
+noremap <Leader>P "+P
+noremap <Leader>wq :wq<cr>
 
 " select last put
 " src: http://vim.wikia.com/wiki/Selecting_your_pasted_text
