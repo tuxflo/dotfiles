@@ -94,7 +94,7 @@ Bundle 'valloric/MatchTagAlways'
 
 " ----------------------------------------
 
-"Bundle 'matchit.zip'
+Bundle 'matchit.zip'
 
 " ----------------------------------------
 
@@ -110,7 +110,7 @@ let g:bufferline_echo = 0
 
 " ----------------------------------------
 
-Bundle 'airblade/vim-gitgutter'
+" Bundle 'airblade/vim-gitgutter'
 
 " ----------------------------------------
 
@@ -240,7 +240,7 @@ endif
 
 " ----------------------------------------
 
-Bundle 'beyondwords/vim-twig'
+" Bundle 'beyondwords/vim-twig'
 
 " ----------------------------------------
 
@@ -264,11 +264,11 @@ Bundle 'beyondwords/vim-twig'
 
 " ----------------------------------------
 
-Bundle 'elzr/vim-json'
+" Bundle 'elzr/vim-json'
 
 " ----------------------------------------
 
-Bundle 'pangloss/vim-javascript'
+" Bundle 'pangloss/vim-javascript'
 
 " ----------------------------------------
 
