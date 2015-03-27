@@ -366,13 +366,12 @@ Bundle 'bling/vim-airline'
 
 let g:airline_theme                           = 'molokai'
 let g:airline_enable_branch                   = 1
-let g:airline_enable_syntastic                = 1
 let g:airline#extensions#tabline#enabled      = 1
 let g:airline#extensions#tmuxline#enabled     = 0
 let g:airline#extensions#bufferline#enabled   = 0
 let g:airline#extensions#tabline#left_sep     = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
-
+let g:airline#extensions#syntastic#enabled    = 1
 " ----------------------------------------
 
 "Bundle 'christoomey/vim-tmux-navigator'
