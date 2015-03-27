@@ -340,15 +340,15 @@ endif
 
 " ----------------------------------------
 
-Bundle 'groenewege/vim-less'
+" Bundle 'groenewege/vim-less'
 
 " ----------------------------------------
 
-Bundle 'cakebaker/scss-syntax.vim'
+" Bundle 'cakebaker/scss-syntax.vim'
 
 " ----------------------------------------
 
-Bundle 'hail2u/vim-css3-syntax'
+" Bundle 'hail2u/vim-css3-syntax'
 
 " ----------------------------------------
 
@@ -391,7 +391,7 @@ let g:airline#extensions#tabline#left_alt_sep = '|'
 
 " ----------------------------------------
 
-Bundle 'tpope/vim-markdown'
+" Bundle 'tpope/vim-markdown'
 
 " ----------------------------------------
 
