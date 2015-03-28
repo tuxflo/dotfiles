@@ -365,7 +365,6 @@ endif
 Bundle 'bling/vim-airline'
 
 let g:airline_theme                           = 'molokai'
-let g:airline_enable_branch                   = 1
 let g:airline#extensions#tabline#enabled      = 1
 let g:airline#extensions#tmuxline#enabled     = 0
 let g:airline#extensions#bufferline#enabled   = 0
