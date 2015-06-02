@@ -17,7 +17,12 @@ com! -nargs=+         UnBundle
 
 Bundle "scrooloose/nerdtree"
 Bundle 'jistr/vim-nerdtree-tabs'
+Bundle "MarcWeber/vim-addon-mw-utils"
+Bundle "tomtom/tlib_vim"
+Bundle "garbas/vim-snipmate"
 
+" Optional:
+Plugin "honza/vim-snippets"
 " open a NERDTree automatically when vim starts up if no files were specified
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
@@ -381,7 +386,7 @@ let g:airline#extensions#syntastic#enabled    = 1
 
 " ----------------------------------------
 
-"Bundle 'tpope/vim-haml'
+Bundle 'tpope/vim-haml'
 
 " ----------------------------------------
 
