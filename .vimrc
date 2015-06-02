@@ -37,7 +37,7 @@
 set nocompatible
 
 " set the shell
-set shell=bash
+set shell=zsh
 
 " Tell vim to use the .vim path first (colors and so)
 set runtimepath=~/.vim,$VIMRUNTIME
@@ -158,7 +158,7 @@ set so=7
 set nolazyredraw
 
 " always show all line numbers
-"set number
+set number
 
 " enhance command-line completion
 if exists("+wildmenu")
@@ -276,7 +276,7 @@ set foldcolumn=0
 set showmatch
 
 " Include angle brackets in matching.
-set matchpairs+=<:>
+"set matchpairs+=<:>
 
 " How many tenths of a second to blink when matching brackets
 set mat=2
@@ -736,12 +736,6 @@ endif
 map <F7>  :cn<CR>
 map <S-F7> :cp<CR>
 map <A-F7> :copen<CR>
-
-" emacs movement keybindings in insert mode
-imap <C-a> <C-o>0
-imap <C-e> <C-o>$
-map <C-e> $
-map <C-a> 0
 
 " stop opening man pages
 nmap K <nop>

@@ -94,7 +94,7 @@ Bundle 'valloric/MatchTagAlways'
 
 " ----------------------------------------
 
-Bundle 'matchit.zip'
+Bundle 'jwhitley/vim-matchit'
 
 " ----------------------------------------
 
