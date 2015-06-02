@@ -30,7 +30,7 @@ nnoremap <leader>- :NERDTreeToggle<CR>
 
 " ----------------------------------------
 
-"Bundle 'tpope/vim-surround'
+Bundle 'tpope/vim-surround'
 
 " usage
 " - e.g.: cs'" -> for ' -> "
