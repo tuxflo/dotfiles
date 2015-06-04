@@ -22,7 +22,7 @@ Bundle "tomtom/tlib_vim"
 Bundle "garbas/vim-snipmate"
 
 " Optional:
-Plugin "honza/vim-snippets"
+Bundle "honza/vim-snippets"
 " open a NERDTree automatically when vim starts up if no files were specified
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
