@@ -43,7 +43,7 @@ Bundle 'tpope/vim-surround'
 
 " ----------------------------------------
 
-Bundle 'ervandew/supertab'
+" Bundle 'ervandew/supertab'
 
 " ----------------------------------------
 
@@ -302,18 +302,6 @@ endif
 " ----------------------------------------
 
 "Bundle 'dag/vim2hs'
-
-" ----------------------------------------
-
-"Bundle 'Twinside/vim-haskellConceal'
-
-" ----------------------------------------
-
-"Bundle 'Twinside/vim-haskellFold'
-
-" ----------------------------------------
-
-"Bundle 'lukerandall/haskellmode-vim'
 
 " ----------------------------------------
 
