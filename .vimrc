@@ -4,6 +4,8 @@ set nocompatible
 " set the shell
 set shell=zsh
 
+map ( :bprevious<cr>
+map ) :bnext<cr>
 " Tell vim to use the .vim path first (colors and so)
 set runtimepath=~/.vim,$VIMRUNTIME
 " With a map leader it's possible to do extra key combinations
@@ -51,7 +53,7 @@ nmap <leader>q :q<cr>
 
 " :W sudo saves the file
 " (useful for handling the permission-denied error)
-command W w !sudo tee % > /dev/null
+" command W w !sudo tee % > /dev/null
 " Set 7 lines to the cursor - when moving vertically using j/k
 set so=7
 
@@ -307,6 +309,8 @@ set virtualedit=block
 " gI moves to last modification
 nnoremap gI `.
 
+nnoremap <(> :bnext<cr>
+
 " Movement & wrapped long lines
 " This solves the problem that pressing down jumps your cursor 'over' the curren
 nnoremap j gj
@@ -468,3 +472,24 @@ vnoremap <silent> <leader>r :call VisualSelection('replace', '')<CR>
 
 " Pressing ,ss will toggle and untoggle spell checking
 map <leader>ss :setlocal spell!<cr>
+
+" Don't close window, when deleting a buffer
+command! Bclose call <SID>BufcloseCloseIt()
+function! <SID>BufcloseCloseIt()
+   let l:currentBufNum = bufnr("%")
+   let l:alternateBufNum = bufnr("#")
+
+   if buflisted(l:alternateBufNum)
+     buffer #
+   else
+     bnext
+   endif
+
+   if bufnr("%") == l:currentBufNum
+     new
+   endif
+
+   if buflisted(l:currentBufNum)
+     execute("bdelete! ".l:currentBufNum)
+   endif
+endfunction
