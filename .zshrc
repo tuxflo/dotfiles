@@ -104,9 +104,14 @@
 
 # zsh profiling
 # just execute 'ZSH_PROFILE_RC=1 zsh' and run 'zprof' to get the details
+alias setclip='xclip -selection c'
+alias getclip='xclip -selection clipboard -o'
 if [[ $ZSH_PROFILE_RC -gt 0 ]] ; then
     zmodload zsh/zprof
 fi
+
+
+PATH="$(ruby -e 'print Gem.user_dir')/bin:$PATH"
 
 # load .zshrc.pre to give the user the chance to overwrite the defaults
 [[ -r ${ZDOTDIR:-${HOME}}/.zshrc.pre ]] && source ${ZDOTDIR:-${HOME}}/.zshrc.pre
