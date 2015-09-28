@@ -109,9 +109,12 @@ set tabstop=2
 
 
 filetype off
+
+" Plugin settings
+
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
-
+Plugin 'Yggdroot/indentLine'
 Bundle 'gmarik/vundle'
 Bundle 'digitaltoad/vim-jade'
 Bundle 'othree/html5.vim'
@@ -200,6 +203,7 @@ let mapleader = ","
 let g:mapleader = ","
 
 nmap <leader>w :w<cr>
+nmap <leader>q :Bclose<cr>
 
 " Map <Space> to / (search) and Ctrl-<Space> to ? (backwards search)
 map <space> /
