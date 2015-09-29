@@ -12,6 +12,10 @@ if exists("+title")
   set title
 endif
 
+" Set the command window height to 2 lines, to avoid many cases of having to
+" " "press <Enter> to continue"
+set cmdheight=2
+
 " Set 7 lines to the cursor - when moving vertically using j/k
 set so=7
 
