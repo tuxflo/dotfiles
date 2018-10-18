@@ -5,11 +5,17 @@
 "\e[B": history-search-forward
 "\e[A": history-search-backward
 
-# Try to stay at the same the cursor position when moving through the history.
+# Try to stay at the same cursor position when moving through the history.
 set history-preserve-point on
 
 # Autocompletion
 # -----------------------------------------------------------------------------
+#
+
+# Tab completion and readline editing in mingw/msys shell.
+# -> http://serverfault.com/questions/119643/how-to-get-both-tab-completion-and-readline-editing-in-mingw-msys-shell
+"\C-i": vi-complete
+
 # Make Tab autocompletion case-insensitive (cd ~/dow<Tab> => cd ~/Downloads/).
 set completion-ignore-case On
 

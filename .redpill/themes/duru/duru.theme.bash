@@ -6,7 +6,8 @@ SCM_THEME_PROMPT_DIRTY=" ${red}with changes"
 SCM_THEME_PROMPT_CLEAN=""
 
 venv() {
-  if [ ! -z "$VIRTUAL_ENV" ]; then
+  if [ ! -z "$VIRTUAL_ENV" ]
+  then
     local env=$VIRTUAL_ENV
     echo "${gray} in ${orange}${env##*/} "
   fi
@@ -20,4 +21,4 @@ prompt() {
   PS1="${yellow}# ${reset_color}$(last_two_dirs)$(scm_prompt_info)${reset_color}$(venv)${reset_color} ${cyan}\n> ${reset_color}"
 }
 
-PROMPT_COMMAND=prompt
+safe_append_prompt_command prompt

@@ -1,4 +1,4 @@
-# Copied and modified from the red-pill theme from geoffgarside
+# Copied and modified from the oh-my-zsh theme from geoffgarside
 # Red server name, green cwd, blue git status
 
 PROMPT='%{$fg[red]%}%m%{$reset_color%}:%{$fg[green]%}%c%{$reset_color%}$(git_prompt_info) %(!.#.$) '

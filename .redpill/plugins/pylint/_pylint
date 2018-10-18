@@ -29,4 +29,3 @@ _arguments -s -S \
   "--reports[Tells whether to display a full report or only the messages \[current: yes\]]::<y_or_n>:_files" \
   "-r[Tells whether to display a full report or only the messages \[current: yes\]]::<y_or_n>:_files" \
   "*::args:_files"
-

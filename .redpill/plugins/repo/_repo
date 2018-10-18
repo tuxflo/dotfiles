@@ -1,6 +1,7 @@
 #compdef repo
 
-__git_apply_whitespace_strategies()
+
+__git_apply_whitespace_strategies ()
 {
   declare -a strategies
 

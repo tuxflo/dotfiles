@@ -9,8 +9,7 @@
 #
 # Use as a drop-in replacement of the svn plugin not as complementary plugin
 
-svn_prompt_info()
-{
+function svn_prompt_info() {
   local info
   info=$(svn info 2>&1) || return 1; # capture stdout and stderr
   local repo_need_upgrade=$(svn_repo_need_upgrade $info)
@@ -44,32 +43,26 @@ svn_prompt_info()
   fi
 }
 
-svn_repo_need_upgrade()
-{
+function svn_repo_need_upgrade() {
   grep -q "E155036" <<< ${1:-$(svn info 2> /dev/null)} && \
     echo "E155036: upgrade repo with svn upgrade"
 }
 
-svn_current_branch_name()
-{
-  grep '^URL:' <<< "${1:-$(svn info 2> /dev/null)}" | egrep -o '(tags|branches)/[^/]+|trunk'
+function svn_current_branch_name() {
+  grep '^URL:' <<< "${1:-$(svn info 2> /dev/null)}" | egrep -o '(tags|branches)/[^/]+|trunk'	
 }
 
-svn_repo_root_name()
-{
+function svn_repo_root_name() {
   grep '^Repository\ Root:' <<< "${1:-$(svn info 2> /dev/null)}" | sed 's#.*/##'
 }
 
-svn_current_revision()
-{
+function svn_current_revision() {
   echo "${1:-$(svn info 2> /dev/null)}" | sed -n 's/Revision: //p'
 }
 
-svn_status_info()
-{
+function svn_status_info() {
   local svn_status_string="$ZSH_THEME_SVN_PROMPT_CLEAN"
   local svn_status="$(svn status 2> /dev/null)";
-
   if command grep -E '^\s*A' &> /dev/null <<< $svn_status; then svn_status_string="$svn_status_string ${ZSH_THEME_SVN_PROMPT_ADDITIONS:-+}"; fi
   if command grep -E '^\s*D' &> /dev/null <<< $svn_status; then svn_status_string="$svn_status_string ${ZSH_THEME_SVN_PROMPT_DELETIONS:-✖}"; fi
   if command grep -E '^\s*M' &> /dev/null <<< $svn_status; then svn_status_string="$svn_status_string ${ZSH_THEME_SVN_PROMPT_MODIFICATIONS:-✎}"; fi

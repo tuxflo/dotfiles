@@ -72,7 +72,7 @@ $code ${D_DEFAULT_COLOR}"
   fi
 }
 
-# vcprompt for scm instead of red_pill default
+# vcprompt for scm instead of bash_it default
 demula_vcprompt() {
   if [ ! -z "$VCPROMPT_EXECUTABLE" ];
   then
@@ -84,7 +84,8 @@ ${D_BRANCH_COLOR}%b %r ${D_CHANGES_COLOR}%m%u ${D_DEFAULT_COLOR}"
 
 # checks if the plugin is installed before calling battery_charge
 safe_battery_charge() {
-  if [ -e "${RED_PILL}/plugins/enabled/battery.plugin.bash" ]; then
+  if command_exists battery_charge ;
+  then
     battery_charge
   fi
 }
@@ -124,6 +125,5 @@ ${D_INTERMEDIATE_COLOR}$ ${D_DEFAULT_COLOR}"
   PS2="${D_INTERMEDIATE_COLOR}$ ${D_DEFAULT_COLOR}"
 }
 
-# Runs prompt (this bypasses red_pill $PROMPT setting)
-PROMPT_COMMAND=prompt
-
+# Runs prompt (this bypasses bash_it $PROMPT setting)
+safe_append_prompt_command prompt

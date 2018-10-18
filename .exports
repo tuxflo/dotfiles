@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 
+export DIR_DOTFILES=$(pwd);
+
 # make vim the default editor
-export PAGER="less"
+export PAGER=${PAGER:-"less"}
 
 # use sublime text for local changes
 if [[ -n $SSH_CONNECTION ]]; then
-  EDITOR="vim"
+  EDITOR=${EDITOR:-"vim"}
 else
   if which subl >/dev/null 2>&1; then
     EDITOR="subl"
   else
-    EDITOR="vim"
+    EDITOR=${EDITOR:-"vim"}
   fi
 fi
 export EDITOR
@@ -27,7 +29,8 @@ case "$OSTYPE" in
   darwin*)  SYSTEM_TYPE="OSX" ;;
   linux*)   SYSTEM_TYPE="LINUX" ;;
   bsd*)     SYSTEM_TYPE="BSD" ;;
-  cygwin*)  YSTEM_TYPE="WINDOWS" ;;
+  msys*)    SYSTEM_TYPE="MINGW" ;;
+  cygwin*)  SYSTEM_TYPE="CYGWIN" ;;
 esac
 
 if [[ "$(uname)" == "Darwin" ]]; then
@@ -40,59 +43,114 @@ elif [[ "$(expr substr $(uname -s) 1 6)" == "NetBSD" ]]; then
   SYSTEM_TYPE="NET_BSD"
 elif [[ "$(expr substr $(uname -s) 1 7)" == "OpenBSD" ]]; then
   SYSTEM_TYPE="OPEN_BSD"
+elif [[ "$(expr substr $(uname -s) 1 7)" == "MSYS_NT" ]]; then
+  SYSTEM_TYPE="MINGW"
 elif [[ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]]; then
-  SYSTEM_TYPE="WINDOWS"
+  SYSTEM_TYPE="MINGW"
+elif [[ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ]]; then
+  SYSTEM_TYPE="MINGW"
+elif [[ "$(expr substr $(uname -s) 1 9)" == "CYGWIN_NT" ]]; then
+  SYSTEM_TYPE="CYGWIN"
+fi
+
+if [[ -n "$(cat /proc/version | grep '(Microsoft@Microsoft.com)')" ]]; then
+  SYSTEM_TYPE="Win10_Linux"
 fi
 
 export SYSTEM_TYPE
 
+if which brew >/dev/null 2>&1; then
+  INSTALL_TYPE="BREW"
+fi
+
+if which apt-get >/dev/null 2>&1; then
+  INSTALL_TYPE="APT"
+fi
+
+if which yum >/dev/null 2>&1; then
+  INSTALL_TYPE="YUM"
+fi
+
+export INSTALL_TYPE
+
 # don't check mail when opening terminal.
 #unset MAILCHECK
 
+# prompt (bash)
+GIT_PROMPT_ONLY_IN_REPO=${GIT_PROMPT_ONLY_IN_REPO:-1}
+GIT_PROMPT_FETCH_REMOTE_STATUS=${GIT_PROMPT_FETCH_REMOTE_STATUS:-0} # uncomment to avoid fetching remote status
+GIT_PROMPT_SHOW_UNTRACKED_FILES=${GIT_PROMPT_SHOW_UNTRACKED_FILES:-"all"} # can be no, normal or all; determines counting of untracked files
+# GIT_PROMPT_SHOW_UPSTREAM=1 # uncomment to show upstream tracking branch
+# GIT_PROMPT_STATUS_COMMAND="gitstatus_pre-1.7.10.sh" # uncomment to support Git older than 1.7.10
+# GIT_PROMPT_START="..."    # uncomment for custom prompt start sequence
+# GIT_PROMPT_END="..."      # uncomment for custom prompt end sequence
+# GIT_PROMPT_THEME="Custom" # use custom .git-prompt-colors.sh
+GIT_PROMPT_THEME=${GIT_PROMPT_THEME:-"voku"} # use theme
+
 # make the "sudo" prompt more useful, without requiring access to "visudo"
-export SUDO_PROMPT="[sudo] password for %u on %h: "
+export SUDO_PROMPT=${SUDO_PROMPT:-"[sudo] password for %u on %h: "}
 
 # PATH addons
 if [ -d "$HOME/bin" ]; then
   PATH="$HOME/bin:$PATH"
 fi
 
-if [ "$UID" != 0 ]; then
-  PATH="$PATH:/usr/local/bin:/usr/sbin:/sbin:/usr/local/sbin"
-fi
-
 if which ruby >/dev/null 2>&1 && which gem >/dev/null 2>&1; then
   PATH="$PATH:$(ruby -rubygems -e 'puts Gem.user_dir')/bin"
 fi
 
-export PATH
+export PATH="/usr/local/bin:/usr/sbin:/sbin:/usr/local/sbin:$PATH"
+
+if [ -d "/usr/local/man" ]; then
+  MANPATH="/usr/local/man:$MANPATH"
+fi
+
+if [ -d "/usr/local/mysql/man" ]; then
+  MANPATH="/usr/local/man:$MANPATH"
+fi
+
+if [ -d "/usr/local/git/man" ]; then
+  MANPATH="/usr/local/git/man:$MANPATH"
+fi
+
+export MANPATH
 
 # larger bash history (allow 32³ entries; default is 500)
-export HISTSIZE=32768
+export HISTSIZE=${HISTSIZE:-32768} # resize history size
 export HISTFILESIZE=$HISTSIZE
 
 # ignore duplicates commands in the historylog
-HISTCONTROL=$HISTCONTROL${HISTCONTROL+:}ignoredups
-export HISTCONTROL=ignoredups
+export HISTCONTROL=$HISTCONTROL${HISTCONTROL+:}ignoredups
 
 # make some commands not show up in history
-export HISTIGNORE="clear:pwd:[bf]g:shutdown*:halt*:poweroff*:hibernate*:rm -rf \*"
+export HISTIGNORE=${HISTIGNORE:-"shutdown*:halt*:poweroff*:hibernate*:rm -rf*"}
+
+# ignorespace	| don't save lines which begin with a <space> character
+# ignoredups	| don't save lines matching the previous history entry
+# ignoreboth	| use both 'ignorespace' and 'ignoredups'
+# erasedups	  | eliminate duplicates across the whole history
 
 # add the date to the historylog
 #
 # Keep track of the time the commands were executed.
 # The xterm colour escapes require special care when piping; e.g. "| less -R".
 #export HISTTIMEFORMAT=$(echo -e "${COLOR_LIGHT_BLUE}%Y-%m-%d %H:%M:%S${COLOR_NO_COLOUR} ")
-export HISTTIMEFORMAT="%Y-%m-%d %H:%M:%S"
+export HISTTIMEFORMAT=${HISTTIMEFORMAT:-"%Y-%m-%d %H:%M:%S"}
+
+# Cucumber / Autotest inte  gration
+export AUTOFEATURE=${AUTOFEATURE:-"true autotest"}
 
 # use UTF-8
 setLocale()
 {
   if [[ "$CONFIG_CHARSET_UTF8" == "true" ]]; then
-    local i pattern localeOutput localeAll
+    local i pattern localeOutput localeOutputArray line
 
-    localeOutput=$(locale -a 2> /dev/null)
-    localeAll=($(locale -a 2> /dev/null))
+    localeOutput=$(locale -a 2>/dev/null)
+    localeOutputArray=()
+    while read -r line; do
+      localeOutputArray+=("$line")
+    done <<< "$localeOutput"
 
     # check if $CONFIG_LANG isset and available
     if [ "$CONFIG_LANG" != "" ] && [ -n "$(echo $localeOutput | grep $CONFIG_LANG)" ] ; then
@@ -101,7 +159,7 @@ setLocale()
       pattern=".{2,2}_.{2,2}\.(UTF-8|UTF8|utf-8|utf8)$"
     fi
 
-    for i in "${localeAll[@]}"; do
+    for i in "${localeOutputArray[@]}"; do
       if [[ "$i" =~ $pattern ]]; then
         export LC_ALL=${i};
         export LANG=${i};
@@ -122,6 +180,13 @@ else
 fi
 
 unset -f setLocale
+
+#tty detection
+if [[ "$(tty | grep -o '/dev/tty')" == "/dev/tty" ]]; then
+  export IS_TTY=1
+else
+  export IS_TTY=0
+fi
 
 # make less the default pager, and specify some useful defaults
 less_options=(
@@ -148,17 +213,15 @@ less_options=(
   # Do not complain when we are on a dumb terminal.
   --dumb
 );
-export LESS="-irMX -x4 --shift 5 ${less_options[*]}";
-unset less_options;
+export LESS="-iMX --shift 5 ${less_options[*]}"
+unset less_options
 
 # highlight section titles in manual pages
 export LESSHISTFILE="-"     # no less history file
 if [ "$UID" != 0 ]; then
-    export LESSCHARSET="utf-8"
+    export LESSCHARSET=${LESSCHARSET:-"utf-8"}
 
-    if [ -z "$LESSOPEN" ]; then
-      [ -x "`which lesspipe 2>/dev/null`" ] && eval "$(lesspipe)"
-    fi
+    [ -x "`which lesspipe 2>/dev/null`" ] && eval "$(lesspipe)"
 
     # yep, 'less' can colorize manpages
     export LESS_TERMCAP_mb=$'\E[01;31m'
@@ -171,59 +234,24 @@ if [ "$UID" != 0 ]; then
 fi
 
 # don’t clear the screen after quitting a manual page
-export MANPAGER="less -X"
+export MANPAGER=${MANPAGER:-"less -X"}
 
-# colored GCC (>= v4.9) warnings and errors
-export GCC_COLORS="error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01"
-
-# always enable colored `grep` output
-#
-# "ls" and "grep" default options
+# try to enable colored output
+if [ -x /usr/bin/dircolors ]; then
+  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+fi
 
 # colorscheme for OS X `ls` environment variable:
-LSCOLORS="Gxfxcxdxbxegedabagacad"
+export CLICOLOR=1
+export LSCOLORS=${LSCOLORS:-"Gxfxcxdxbxegedabagacad"}
 
-# colorscheme for GNU `ls` environment variable:
-LS_COLORS="no=00:fi=00:di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.svgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01; 35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:"
-LS_OPTIONS="-hFN --color=auto"
+# "ls" default options
+export LS_OPTIONS=${LS_OPTIONS:-"-hFN --color=auto"}
 
-GREP_COLOR="1;32"
-GREP_OPTIONS="--color=auto"
+export GREP_COLOR=${GREP_COLOR:-"1;32"}
 
-# is x grep argument available?
-grepFlagAvailable()
-{
-  echo | command grep $1 "" >/dev/null 2>&1
-}
-
-# ignore VCS folders (if the necessary grep flags are available)
-VCS_FOLDERS="{.bzr,.cvs,.git,.hg,.svn}"
-
-if grepFlagAvailable --exclude-dir=.cvs; then
-  GREP_OPTIONS+=" --exclude-dir=$VCS_FOLDERS"
-elif grepFlagAvailable --exclude=.cvs; then
-  GREP_OPTIONS+=" --exclude=$VCS_FOLDERS"
-fi
-
-# clean-up
-unset VCS_FOLDERS
-unset -f grepFlagAvailable
-
-# some more default color-settings for the root-user
-if [ "$UID" = 0 ]; then
-  LS_COLORS==""
-  LS_OPTIONS="-N --color=auto"
-  GREP_OPTIONS=""
-fi
-
-# export ls & grep settings
-export LSCOLORS="$LSCOLORS"
-export LS_COLORS="$LS_COLORS="
-export LS_OPTIONS="$LS_OPTIONS"
-export GREP_COLOR="$GREP_COLOR"
-
-# grep v2.21 depracates GREP_OPTIONS env var
-# old -> export GREP_OPTIONS="$GREP_OPTIONS"
+# colored GCC (>= v4.9) warnings and errors
+export GCC_COLORS=${GCC_COLORS:-"error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01"}
 
 # lazy add local bin
 LOCAL_BIN="$HOME/.local/bin"
@@ -293,6 +321,8 @@ if [ -n "$ANDROID_SDK_ROOT" ]; then
   export PATH="$ANDROID_SDK_ROOT/tools/:$ANDROID_SDK_ROOT/platform-tools/:$PATH"
 fi
 
+# ruby settings
+#
 # ruby version management with rbenv
 if [ -d "$HOME/.rbenv" ]; then
   export RBENV_ROOT="$HOME/.rbenv"
@@ -300,7 +330,8 @@ if [ -d "$HOME/.rbenv" ]; then
   eval "$(rbenv init -)"
 fi
 
-# ndenv variable
+# ndenv settings
+#
 if [ -d "$HOME/.ndenv" ]; then
   export NDENV_HOME="$HOME/.ndenv"
   export PATH="$NDENV_HOME/bin:$PATH"
@@ -308,13 +339,40 @@ if [ -d "$HOME/.ndenv" ]; then
 fi
 
 # jenv settings
+#
 if [ -f "$HOME/.jenv/bin/jenv-init.sh" ]; then
   source $HOME/.jenv/bin/jenv-init.sh
 fi
 
 # pyenv settings
+#
 if [ -d "$HOME/.pyenv/bin" ]; then
   export PATH="$HOME/.pyenv/bin:$PATH"
   eval "$(pyenv init -)"
   eval "$(pyenv virtualenv-init -)"
 fi
+
+# php settings
+#
+# composer - path
+if [ -d "$HOME/AppData/Roaming/Composer/vendor/bin" ]; then
+  export PATH="$HOME/AppData/Roaming/Composer/vendor/bin:$PATH"
+fi
+if [ -d "$HOME/.composer/vendor/bin" ]; then
+  export PATH="$HOME/.composer/vendor/bin:$PATH"
+fi
+
+# node-js settings
+#
+# Enable persistent REPL history for `node`.
+export NODE_REPL_HISTORY="~/.node_history"
+# Allow 32³ entries; the default is 1000.
+export NODE_REPL_HISTORY_SIZE="32768"
+# Use sloppy mode by default, matching web browsers.
+export NODE_REPL_MODE="sloppy"
+
+# python settings
+#
+# Make Python use UTF-8 encoding for output to stdin, stdout, and stderr.
+export PYTHONIOENCODING="UTF-8"
+

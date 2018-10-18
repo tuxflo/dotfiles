@@ -30,9 +30,9 @@
 #
 ################################################################################
 #
-# Copyright (c) 2012 Jim Hester
+# Copyright (c) 2014 Jim Hester
 #
-# This software is provided 'as-is', without any express or implied warranty.
+# This software is provided 'as-is', without any express or implied warranty. 
 # In no event will the authors be held liable for any damages arising from the
 # use of this software.
 #
@@ -57,13 +57,13 @@
 #-------------------------------------------------------------------------------
 
 [[ -z $HISTORY_BASE ]] && HISTORY_BASE="$HOME/.directory_history"
+[[ -z $PER_DIRECTORY_HISTORY_TOGGLE ]] && PER_DIRECTORY_HISTORY_TOGGLE='^G'
 
 #-------------------------------------------------------------------------------
 # toggle global/directory history used for searching - ctrl-G by default
 #-------------------------------------------------------------------------------
 
-per-directory-history-toggle-history()
-{
+function per-directory-history-toggle-history() {
   if [[ $_per_directory_history_is_global == true ]]; then
     _per-directory-history-set-directory-history
     print -n "\nusing local history"
@@ -77,7 +77,7 @@ per-directory-history-toggle-history()
 
 autoload per-directory-history-toggle-history
 zle -N per-directory-history-toggle-history
-bindkey '^G' per-directory-history-toggle-history
+bindkey $PER_DIRECTORY_HISTORY_TOGGLE per-directory-history-toggle-history
 
 #-------------------------------------------------------------------------------
 # implementation details
@@ -85,8 +85,7 @@ bindkey '^G' per-directory-history-toggle-history
 
 _per_directory_history_directory="$HISTORY_BASE${PWD:A}/history"
 
-_per-directory-history-change-directory()
-{
+function _per-directory-history-change-directory() {
   _per_directory_history_directory="$HISTORY_BASE${PWD:A}/history"
   mkdir -p ${_per_directory_history_directory:h}
   if [[ $_per_directory_history_is_global == false ]]; then
@@ -109,14 +108,13 @@ _per-directory-history-change-directory()
   fi
 }
 
-_per-directory-history-addhistory()
-{
+function _per-directory-history-addhistory() {
   print -Sr -- "${1%%$'\n'}"
   fc -p $_per_directory_history_directory
 }
 
-_per-directory-history-set-directory-history()
-{
+
+function _per-directory-history-set-directory-history() {
   if [[ $_per_directory_history_is_global == true ]]; then
     fc -AI $HISTFILE
     local original_histsize=$HISTSIZE
@@ -128,9 +126,7 @@ _per-directory-history-set-directory-history()
   fi
   _per_directory_history_is_global=false
 }
-
-_per-directory-history-set-global-history()
-{
+function _per-directory-history-set-global-history() {
   if [[ $_per_directory_history_is_global == false ]]; then
     fc -AI $_per_directory_history_directory
     local original_histsize=$HISTSIZE
@@ -143,12 +139,13 @@ _per-directory-history-set-global-history()
   _per_directory_history_is_global=true
 }
 
+
 #add functions to the exec list for chpwd and zshaddhistory
-chpwd_functions=(${chpwd_functions[@]} "_per-directory-history-change-directory")
-zshaddhistory_functions=(${zshaddhistory_functions[@]} "_per-directory-history-addhistory")
+autoload -U add-zsh-hook
+add-zsh-hook chpwd _per-directory-history-change-directory
+add-zsh-hook zshaddhistory _per-directory-history-addhistory
 
 #start in directory mode
 mkdir -p ${_per_directory_history_directory:h}
 _per_directory_history_is_global=true
 _per-directory-history-set-directory-history
-

@@ -2,3 +2,8 @@
 
 # Load RVM (Ruby Version Manager), if you are using it
 [[ -s $HOME/.rvm/scripts/rvm ]] && source $HOME/.rvm/scripts/rvm
+
+if [ -e "$HOME/.jekyllconfig" ]; then
+  . "$HOME/.jekyllconfig"
+fi
+

@@ -1,8 +1,8 @@
 alias h='history'
 
-hs()
+function hs
 {
-  history | grep $*
+    history | grep $*
 }
 
 alias hsi='hs -i'

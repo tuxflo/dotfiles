@@ -3,8 +3,7 @@
 cite about-plugin
 about-plugin 'load rbenv, if you are using it'
 
-export PATH="$HOME/.rbenv/bin:$PATH"
-[[ `which rbenv` ]] && eval "$(rbenv init -)"
+pathmunge "$HOME"/.rbenv/bin
+[ -x `which rbenv` ] && eval "$(rbenv init -)"
 
-# Load the auto-completion script if rbenv was loaded.
-[[ -e ~/.rbenv/completions/rbenv.bash ]] && source ~/.rbenv/completions/rbenv.bash
+[ -d "$HOME"/.rbenv/plugins/ruby-build ] && pathmunge "$HOME"/.rbenv/plugins/ruby-build/bin

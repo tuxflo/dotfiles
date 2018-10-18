@@ -1,9 +1,7 @@
 # reload zshrc
-
-src()
+function src()
 {
-  local cache="$ZSH/cache"
-
+  local cache=$ZSH_CACHE_DIR
   autoload -U compinit zrecompile
   compinit -d "$cache/zcomp-$HOST"
 

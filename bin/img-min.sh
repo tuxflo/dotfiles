@@ -3,8 +3,9 @@
 # Image minimizer
 # Iteratively resamples image quality to a certain threshold, reducing image filesize but retaining quality similar to the original image
 #
-# Example usage:
-# ./imgmin.sh foo-before.jpg foo-after.jpg
+# example usage: ./imgmin.sh foo-before.jpg foo-after.jpg
+#
+# online demo: http://image-api.suckup.de/
 #
 # Author: Ryan Flynn <parseerror+imgmin@gmail.com>
 # Author: Lars Moelleken <lars@moelleken.org>
@@ -70,7 +71,7 @@ do_png()
     if [ $quality ]; then
       pngquant --quality=${quality} "$tmpfile"
     else
-      pngquant --quality=75-100 "$tmpfile"
+      pngquant --quality=70-100 "$tmpfile"
     fi
     outfile="${tmpfile::$((${#tmpfile}-4))}-fs8${tmpfile:$((${#tmpfile}-4))}"
     pngs[${#pngs[@]}]="$outfile"
@@ -117,10 +118,16 @@ search_quality()
     # debug
     #echo "$uc < $MIN_UNIQUE_COLORS"
 
-    if [ ".png" = ${src_ext:(-4)} ]; then
+    if [ ".gif" = ${src_ext:(-4)} ]; then
+      gifsicle --colors 256 -O2 $src -o $tmpfile
+      return
+    elif [ ".png" = ${src_ext:(-4)} ]; then
       cp -p $src $tmpfile
       use=$(do_png "$src" "$tmpfile" "$quality")
-      echo "use:$use"
+
+      # debug
+      #echo "use:$use"
+
       cp -p $use $tmpfile
       return
     elif [ ".jpeg" = ${src_ext:(-5)} ] || [ ".jpg" = ${src_ext:(-4)} ]; then
@@ -128,7 +135,7 @@ search_quality()
 
       local tmpfile_new=$(mktemp);
       cp -p $src $tmpfile_new
-      jpegtran -copy none "$tmpfile_new" > "$src"
+      jpegtran -progressive -copy none "$tmpfile_new" > "$src"
       rm $tmpfile_new;
     fi
   fi
@@ -136,31 +143,31 @@ search_quality()
   if [ $quality ]; then
     if [ ".jpeg" = ${src_ext:(-5)} ] || [ ".jpg" = ${src_ext:(-4)} ]; then
       convert $src TGA:- |
-        cjpeg -quality $quality -sample 1x1 -outfile $tmpfile -targa
+        cjpeg -progressive -quality $quality -sample 1x1 -outfile $tmpfile -targa
     else
-      convert -quality $quality $src $tmpfile
+      convert -interlace -quality $quality $src $tmpfile
     fi
 
     return 1
   fi
 
-  local qmin=75
+  local qmin=30
   local qmax=100
   local q=""
   local cmppct=""
   local cmpthreshold=""
   # binary search for lowest quality where compare < $cmpthreshold
-  while [ $qmax -gt $((qmin+2)) ]; do
+  while [ $qmax -gt $((qmin+10)) ]; do
     q=$(((qmax+qmin-1)/2))
 
     # debug
-    #echo "debug: " $qmax " - " $qmin
+    #echo "debug: " $qmax " - " $qmin " - " $q
 
     if [ ".jpeg" = ${src_ext:(-5)} ] || [ ".jpg" = ${src_ext:(-4)} ]; then
       convert $src TGA:- |
-        cjpeg -quality $q -sample 1x1 -outfile $tmpfile -targa
+        cjpeg -progressive -quality $q -sample 1x1 -outfile $tmpfile -targa
     else
-      convert -quality $q $src $tmpfile
+      convert -interlace -quality $q $src $tmpfile
     fi
 
     cmppct=`compare -metric RMSE $src $tmpfile /dev/null 2>&1 \
@@ -169,7 +176,9 @@ search_quality()
 
     cmpthreshold=$cmppct;
 
-    if [[ $( printf '%.0f' $(echo "${cmpthreshold}" | bc -l)) -eq 1 ]]; then
+    echo "foo: " $cmpthreshold
+
+    if [[ $( LC_ALL=C printf '%.0f' $(echo "${cmpthreshold}" | bc -l)) -eq 1 ]]; then
       qmin=$q
     else
       qmax=$q
@@ -197,7 +206,7 @@ check_image_stats()
 
       local tmpfile_new=$(mktemp);
       cp -p $src $tmpfile_new
-      jpegtran -copy none "$tmpfile_new" > "$tmpfile"
+      jpegtran -progressive -copy none "$tmpfile_new" > "$tmpfile"
       rm $tmpfile_new;
     fi
 

@@ -1,7 +1,7 @@
 # CRUNCH - created from Steve Eley's cat waxing.
 # Initially hacked from the Dallas theme. Thanks, Dallas Reedy.
 #
-# This theme assumes you do most of your red-pill'ed "colorful" work at a single machine, 
+# This theme assumes you do most of your oh-my-zsh'ed "colorful" work at a single machine, 
 # and eschews the standard space-consuming user and hostname info.  Instead, only the 
 # things that vary in my own workflow are shown:
 #
@@ -21,7 +21,7 @@ CRUNCH_GIT_BRANCH_COLOR="%{$fg[green]%}"
 CRUNCH_GIT_CLEAN_COLOR="%{$fg[green]%}"
 CRUNCH_GIT_DIRTY_COLOR="%{$fg[red]%}"
 
-# These Git variables are used by the red-pill git_prompt_info helper:
+# These Git variables are used by the oh-my-zsh git_prompt_info helper:
 ZSH_THEME_GIT_PROMPT_PREFIX="$CRUNCH_BRACKET_COLOR:$CRUNCH_GIT_BRANCH_COLOR"
 ZSH_THEME_GIT_PROMPT_SUFFIX=""
 ZSH_THEME_GIT_PROMPT_CLEAN=" $CRUNCH_GIT_CLEAN_COLOR✓"

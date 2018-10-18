@@ -31,7 +31,7 @@ if [ -d $HOME/.redpill ]; then
   # Custom plugins may be added to ~/.redpill/custom/plugins/
   # Example format: plugins=(rails git textmate ruby lighthouse)
   # Add wisely, as too many plugins slow down shell startup.
-  plugins=($CONFIG_ZSH_PLUGINS)
+  plugins=($(echo $CONFIG_ZSH_PLUGINS | sed 's/(//g' | sed 's/)//g'))
 
   source $HOME/.redpill/redpill-init-zsh.sh
 fi

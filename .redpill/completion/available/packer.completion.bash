@@ -116,7 +116,7 @@ __packer_inspect ()
 # Generates completion for the validate command.
 __packer_validate ()
 {
-  __packercomp_template_file
+    __packercomp_template_file
 }
 
 # Main function for packer completion.
@@ -126,38 +126,38 @@ __packer_validate ()
 # completion for global options is done.
 _packer_completion ()
 {
-  cur=${COMP_WORDS[COMP_CWORD]}
-  # Words containing an equal sign get split into tokens in bash > 4, which
-  # doesn't come in handy here.
-  # This is handled here. bash < 4 does not split.
-  declare -f _get_comp_words_by_ref >/dev/null && _get_comp_words_by_ref -n = cur
+    cur=${COMP_WORDS[COMP_CWORD]}
+    # Words containing an equal sign get split into tokens in bash > 4, which
+    # doesn't come in handy here.
+    # This is handled here. bash < 4 does not split.
+    declare -f _get_comp_words_by_ref >/dev/null && _get_comp_words_by_ref -n = cur
 
-  COMPREPLY=()
-  local i c=1 command
+    COMPREPLY=()
+    local i c=1 command
 
-  while [ $c -lt $COMP_CWORD ]; do
-    i="${COMP_WORDS[c]}"
-    case "$i" in
-      -*) ;;
-      *) command="$i"; break ;;
-    esac
-    ((c++))
-  done
+    while [ $c -lt $COMP_CWORD ]; do
+        i="${COMP_WORDS[c]}"
+        case "$i" in
+            -*) ;;
+            *) command="$i"; break ;;
+        esac
+        ((c++))
+    done
 
-  if [ -z $command ]; then
-    case "$cur" in
-      '-'*)
-        __packercomp "-machine-readable --help --version"
-        ;;
-      *)
-        __packercomp "build fix inspect validate"
-        ;;
-    esac
-    return
-  fi
+    if [ -z $command ]; then
+        case "$cur" in
+            '-'*)
+                __packercomp "-machine-readable --help --version"
+                ;;
+            *)
+                __packercomp "build fix inspect validate"
+                ;;
+        esac
+        return
+    fi
 
-  local completion_func="__packer_${command}"
-  declare -f $completion_func >/dev/null && $completion_func
+    local completion_func="__packer_${command}"
+    declare -f $completion_func >/dev/null && $completion_func
 }
 
 complete -o nospace -F _packer_completion packer

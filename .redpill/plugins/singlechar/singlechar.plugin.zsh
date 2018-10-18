@@ -1,6 +1,6 @@
 ################################################################################
 #          FILE:  singlechar.plugin.zsh
-#   DESCRIPTION:  red-pill plugin file.
+#   DESCRIPTION:  oh-my-zsh plugin file.
 #        AUTHOR:  Michael Varner (musikmichael@web.de)
 #       VERSION:  1.0.0
 #
@@ -9,7 +9,7 @@
 ################################################################################
 
 ###########################
-# Settings
+# Settings 
 
 # These can be overwritten any time.
 # If they are not set yet, they will be

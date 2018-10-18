@@ -6,7 +6,7 @@ fi
 # FOLLOW THE WHITE RABBIT ...
 
 # add a function path
-fpath=($ZSH/functions $ZSH/completions $fpath)
+fpath=($ZSH/functions $ZSH/completions $ZSH/plugins/zsh-completions/src $fpath)
 
 # set ZSH_CUSTOM to the path where your custom config files
 # and plugins exists or we use a default value
@@ -42,7 +42,7 @@ done
 unset plugin
 
 # figure out the SHORT hostname
-if [[ "$OSTYPE" = darwin* ]]; then
+if [[ "$OSTYPE" == "OSX" ]]; then
   # OS X's $HOST changes with dhcp, etc. Use ComputerName if possible.
   SHORT_HOST=$(scutil --get ComputerName 2>/dev/null) || SHORT_HOST=${HOST/.*/}
 else
@@ -58,7 +58,7 @@ fi
 autoload -U compinit
 compinit -i -d "${ZSH_COMPDUMP}"
 
-# load all of the plugins that were defined in ~/.zshrc
+# load all of the plugins that were defined in ~/.config_dotfiles
 for plugin ($plugins); do
   if [ -f $ZSH_CUSTOM/plugins/$plugin/$plugin.plugin.zsh ]; then
     source $ZSH_CUSTOM/plugins/$plugin/$plugin.plugin.zsh
@@ -73,6 +73,9 @@ for config_file ($ZSH_CUSTOM/*.zsh(N)); do
   source $config_file
 done
 unset config_file
+
+# git-prompt
+source $ZSH/zsh_prompt/zshrc.sh
 
 # load the theme
 if [ "$ZSH_THEME" = "random" ]; then

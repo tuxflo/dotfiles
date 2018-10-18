@@ -10,11 +10,11 @@ WORDCHARS='*?_-.[]~&;!#$%^(){}<>'
 zstyle ':completion:*' accept-exact '*(N)'
 
 # highlight matching part of available completions
-zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*:default' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' list-colors  'reply=( "=(#b)(*$PREFIX)(?)*=00=$color[green]=$color[bg-green]" )'
 zstyle ':completion:*' select-prompt %SScrolling active: current selection at %P Lines: %m
 zstyle ':completion:*:corrections' format $'%{\e[0;31m%}%d (errors: %e)%}'
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*:*:*:*:hosts' list-colors '=*=30;41'
 zstyle ':completion:*:*:*:*:users' list-colors '=*=34;47'
 
@@ -167,13 +167,17 @@ zstyle ':completion:*:(ssh|scp|rsync):*:hosts-ipaddr' ignored-patterns '^<->.<->
 # sorted alphabetically by name.
 zstyle ':completion:*' file-sort name
 
-## case-insensitive (all),partial-word and then substring completion
-if [ "x$CASE_SENSITIVE" = "xtrue" ]; then
-  zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-  unset CASE_SENSITIVE
+# case insensitive (all), partial-word and substring completion
+if [[ "$CASE_SENSITIVE" = true ]]; then
+  zstyle ':completion:*' matcher-list 'r:|=*' 'l:|=* r:|=*'
 else
-  zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+  if [[ "$HYPHEN_INSENSITIVE" = true ]]; then
+    zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}' 'r:|=*' 'l:|=* r:|=*'
+  else
+    zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
+  fi
 fi
+unset CASE_SENSITIVE HYPHEN_INSENSITIVE
 
 # don't complete backup files as executables
 zstyle ':completion:*:complete:-command-::commands' ignored-patterns '*\~'

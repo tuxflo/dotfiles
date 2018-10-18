@@ -1,5 +1,5 @@
 # prompt style and colors based on Steve Losh's Prose theme:
-# http://github.com/sjl/red-pill/blob/master/themes/prose.zsh-theme
+# http://github.com/sjl/oh-my-zsh/blob/master/themes/prose.zsh-theme
 #
 # vcs_info modifications from Bart Trojanowski's zsh prompt:
 # http://www.jukie.net/bart/blog/pimping-out-zsh-prompt
@@ -13,13 +13,11 @@ function virtualenv_info {
 PR_GIT_UPDATE=1
 
 setopt prompt_subst
-autoload colors
-colors
 
 autoload -U add-zsh-hook
 autoload -Uz vcs_info
 
-#use extended color pallete if available
+#use extended color palette if available
 if [[ $TERM = *256color* || $TERM = *rxvt* ]]; then
     turquoise="%F{81}"
     orange="%F{166}"

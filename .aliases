@@ -14,6 +14,7 @@ alias sudo='sudo '
 # Super user
 alias _='sudo'
 alias please='sudo'
+alias clr='clear'
 
 # use vim
 if which vim >/dev/null 2>&1; then
@@ -67,9 +68,11 @@ alias vimrc="vim ~/.vimrc"
 alias reload_bash_profile='source ~/.bash_profile'
 alias reload_zsh_profile='source ~/.zprofile'
 
-# Reload the shell (i.e. invoke as a login shell)
+# reload the shell (i.e. invoke as a login shell)
 alias reload="exec $SHELL -l"
 
+# Print each PATH entry on a separate line
+alias path="echo -e ${PATH//:/\\n}"
 
 # ------------------------------------------------------------------------------
 # | Navigation                                                                 |
@@ -93,6 +96,17 @@ alias cd...='cd ../..'
 alias cd....='cd ../../..'
 alias cd.....='cd ../../../..'
 
+if [[ "$SHELL" == "$(which zsh 2>/dev/null)" ]]; then
+  alias 1='cd -'
+  alias 2='cd -2'
+  alias 3='cd -3'
+  alias 4='cd -4'
+  alias 5='cd -5'
+  alias 6='cd -6'
+  alias 7='cd -7'
+  alias 8='cd -8'
+  alias 9='cd -9'
+fi
 
 # ------------------------------------------------------------------------------
 # | Directories Commands (create / remove)                                     |
@@ -119,7 +133,7 @@ alias mkdd='mkdir $(date +%Y%m%d)'
 if [ "$TERM" != "dumb" ]; then
 
   # dircolors
-  if [[ "$SYSTEM_TYPE" == "LINUX" ]]; then
+  if [[ "$SYSTEM_TYPE" == "LINUX" || "$SYSTEM_TYPE" == "CYGWIN" ]]; then
     if [ -s "$HOME/.dircolors" ]; then
       eval "$(dircolors -b $HOME/.dircolors)"
     else
@@ -142,10 +156,21 @@ if [ "$TERM" != "dumb" ]; then
       COLORFLAG="-G"
     elif ls --color -d . &>/dev/null 2>&1; then
       COLORFLAG="--color"
-      if [[ "$SYSTEM_TYPE" == "LINUX" ]]; then
+      if [[ "$SYSTEM_TYPE" == "LINUX" || "$SYSTEM_TYPE" == "CYGWIN" ]]; then
         COLORFLAG="--color=auto"
       fi
     fi
+  fi
+
+  # Burl: better curl shortcuts (https://github.com/visionmedia/burl).
+  if command -v burl > /dev/null; then
+    alias curl_get='burl GET'
+    alias curl_head='burl -I'
+    alias curl_post='burl POST'
+    alias curl_put='burl PUT'
+    alias curl_patch='burl PATCH'
+    alias curl_delete='burl DELETE'
+    alias curl_options='burl OPTIONS'
   fi
 
   # Use "colordiff" or "highlight" to colour diffs.
@@ -153,30 +178,43 @@ if [ "$TERM" != "dumb" ]; then
     alias difflight="colordiff"
   elif command -v highlight > /dev/null; then
     alias difflight="highlight --dark-red ^-.* \
-    	| highlight --dark-green ^+.* \
-    	| highlight --yellow ^Only.* \
-    	| highlight --yellow ^Files.*differ$ \
-    	| less -XFIRd"
+      | highlight --dark-green ^+.* \
+      | highlight --yellow ^Only.* \
+      | highlight --yellow ^Files.*differ$ \
+      | less -XFIRd"
   else
     alias difflight="less -XFIRd"
   fi
 
-  # colorize these commands if possible
+  # Use GRC for additionnal colorization
   if which grc >/dev/null 2>&1; then
     alias colour="grc -es --colour=auto"
+    alias as="colour as"
     alias configure="colour ./configure"
     alias diff="colour diff"
-    alias make="colour make"
-    alias gcc="colour gcc"
+    alias dig="colour dig"
     alias g++="colour g++"
+    alias gas="colour gas"
+    alias gcc="colour gcc"
+    alias head="colour head"
+    alias ifconfig="colour ifconfig"
     alias ld="colour ld"
+    alias ls="colour ls"
+    alias make="colour make"
+    alias mount="colour mount"
     alias netstat="colour netstat"
     alias ping="colour ping"
-    alias traceroute="colour traceroute"
-    alias tail="colour tail"
     alias ps="colour ps"
+    alias tail="colour tail"
+    alias traceroute="colour traceroute"
     alias syslog="sudo colour tail -f -n 100 /var/log/syslog"
   fi
+
+  # replace diff with "git diff"
+  #if command -v git >/dev/null; then
+  #  alias diff_orig="/usr/bin/diff"
+  #  alias diff="git diff --color-words "
+  #fi
 
   # replace top with htop
   if command -v htop >/dev/null; then
@@ -198,6 +236,8 @@ fi
 
 # list all files colorized in long format
 alias l="ls -lhF $COLORFLAG"
+# list all files with directories
+alias ldir="l -R"
 # Show hidden files
 alias l.="ls -dlhF .* $COLORFLAG"
 alias ldot="l."
@@ -207,6 +247,8 @@ alias ls="ls -F $COLORFLAG"
 alias l1="ls -1 $COLORFLAG"
 # displays all files and directories in detail
 alias la="ls -laFh $COLORFLAG"
+# displays all files and directories in detail (without "." and without "..")
+alias lA="ls -lAFh $COLORFLAG"
 alias lsa="la"
 # displays all files and directories in detail with newest-files at bottom
 alias lr="ls -laFhtr $COLORFLAG"
@@ -283,7 +325,7 @@ alias gurl="curl --compressed"
 alias lsport='sudo lsof -i -T -n'
 
 # shows more about the ports on which the applications use
-alias llport='sudo netstat -nape --inet --inet6'
+alias llport='netstat -nape --inet --inet6'
 
 # show only active network listeners
 alias netlisteners='sudo lsof -i -P | grep LISTEN'
@@ -303,6 +345,7 @@ alias date_day='date "+%d"'
 alias date_hour='date "+%H"'
 alias date_minute='date "+%M"'
 alias date_second='date "+%S"'
+alias date_time='date "+%H:%M:%S"'
 
 # stopwatch
 alias timer='echo "Timer started. Stop with Ctrl-D." && date && time cat && date'
@@ -369,12 +412,15 @@ if command -v pbpaste >/dev/null; then
   alias getclip="pbpaste"
   alias putclip="pbcopy"
 elif command -v xclip >/dev/null; then
-  alias getclip="xclip -o"
-  alias putclip="xclip -i"
+  alias getclip="xclip -selection clipboard -o"
+  alias putclip="xclip -selection clipboard -i"
+elif [[ "$SYSTEM_TYPE" == "MINGW" || "$SYSTEM_TYPE" == "CYGWIN" ]]; then
+  alias getclip="cat /dev/clipboard"
+  alias putclip="cat > /dev/clipboard"
 fi
 
 # Trim new lines and copy to clipboard
-alias c="tr -d '\n' | putclip"
+alias pc="putclip"
 
 # ring the terminal bell, and put a badge on Terminal.app’s Dock icon
 # (useful when executing time-consuming commands)
@@ -384,6 +430,11 @@ alias badge="tput bel"
 # ------------------------------------------------------------------------------
 # | Other                                                                      |
 # ------------------------------------------------------------------------------
+
+# Language aliases
+alias rb='ruby'
+alias py='python'
+alias ipy='ipython'
 
 # decimal to hexadecimal value
 alias dec2hex='printf "%x\n" $1'
@@ -422,8 +473,10 @@ alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v exten
 # php - package-manager - composer
 alias composer-install="composer install --optimize-autoloader"
 
-# add ssh-key to clipboard
-alias sshkey="cat ~/.ssh/id_rsa.pub | putclip && echo 'Copied to clipboard.'"
+# add ssh-key to ssh-agent when key exist
+if [ "$SSH_AUTH_SOCK" != "" ] && [ -f "~/.ssh/id_rsa" ] && [ -x "/usr/bin/ssh-add"  ]; then
+  ssh-add -l >/dev/null || alias ssh='(ssh-add -l >/dev/null || ssh-add) && unalias ssh; ssh'
+fi
 
 
 # ------------------------------------------------------------------------------
@@ -433,7 +486,6 @@ alias sshkey="cat ~/.ssh/id_rsa.pub | putclip && echo 'Copied to clipboard.'"
 #alias nyancat="telnet miku.acm.uiuc.edu"  # offline
 
 alias starwars="telnet towel.blinkenlights.nl"
-
 
 # ------------------------------------------------------------------------------
 # | auto-completion (for bash)                                                 |

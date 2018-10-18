@@ -1,6 +1,6 @@
 # Use Ctrl+J instead of Ctrl+A, which goes to the start of a line in Bash and
 # other applications that use the Readline library.
-#escape ^Jj
+escape ^Jj
 
 # Bind F11 and F12 (NOT F1 and F2) to previous and next screen window. (F1 and
 # F2 would be "bindkey -k k1 prev" and "bindkey -k -k2 next", for some reason.)
@@ -23,3 +23,6 @@ defscrollback 32000
 
 # Always start `screen` with UTF-8 enabled (`screen -U`)
 defutf8 on
+
+#activate mouse wheel
+terminfo xterm* ti=:te=

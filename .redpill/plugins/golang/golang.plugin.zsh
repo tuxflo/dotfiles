@@ -6,7 +6,6 @@ for p in $prefixes; do
 	compctl -g "*.${p}" ${p}l
 	compctl -g "*.go" ${p}g
 done
-unset p
 
 # standard go tools
 compctl -g "*.go" gofmt
@@ -15,10 +14,8 @@ compctl -g "*.go" gofmt
 compctl -g "*.go" gccgo
 
 # go tool
-__go_tool_complete()
-{
+__go_tool_complete() {
   typeset -a commands build_flags
-
   commands+=(
     'build[compile packages and dependencies]'
     'clean[remove object files]'
@@ -26,6 +23,7 @@ __go_tool_complete()
     'env[print Go environment information]'
     'fix[run go tool fix on packages]'
     'fmt[run gofmt on package sources]'
+    'generate[generate Go files by processing source]'
     'get[download and install packages and dependencies]'
     'help[display help]'
     'install[compile and install packages and dependencies]'
@@ -36,13 +34,11 @@ __go_tool_complete()
     'version[print Go version]'
     'vet[run go tool vet on packages]'
   )
-
   if (( CURRENT == 2 )); then
     # explain go commands
     _values 'go tool commands' ${commands[@]}
     return
   fi
-
   build_flags=(
     '-a[force reinstallation of packages that are already up-to-date]'
     '-n[print the commands but do not run them]'
@@ -58,39 +54,55 @@ __go_tool_complete()
     '-installsuffix[suffix to add to package directory]:suffix'
     '-tags[list of build tags to consider satisfied]:tags'
   )
-
-  __go_list()
-  {
-    local expl importpaths
-    declare -a importpaths
-    importpaths=($(go list ${words[$CURRENT]}... 2>/dev/null))
-    _wanted importpaths expl 'import paths' compadd "$@" - "${importpaths[@]}"
+  __go_packages() {
+      local gopaths
+      declare -a gopaths
+      gopaths=("${(s/:/)$(go env GOPATH)}")
+      gopaths+=("$(go env GOROOT)")
+      for p in $gopaths; do
+        _path_files -W "$p/src" -/
+      done
   }
-
+  __go_identifiers() {
+      compadd $(godoc -templates $ZSH/plugins/golang/templates ${words[-2]} 2> /dev/null)
+  }
   case ${words[2]} in
-    clean|doc)
-      _arguments -s -w : '*:importpaths:__go_list'
-    ;;
-    fix|fmt|list|vet)
-      _alternative ':importpaths:__go_list' ':files:_path_files -g "*.go"'
-    ;;
-    install)
+  doc)
+    _arguments -s -w \
+      "-c[symbol matching honors case (paths not affected)]" \
+      "-cmd[show symbols with package docs even if package is a command]" \
+      "-u[show unexported symbols as well as exported]" \
+      "2:importpaths:__go_packages" \
+      ":next identifiers:__go_identifiers"
+      ;;
+  clean)
+    _arguments -s -w \
+      "-i[remove the corresponding installed archive or binary (what 'go install' would create)]" \
+      "-n[print the remove commands it would execute, but not run them]" \
+      "-r[apply recursively to all the dependencies of the packages named by the import paths]" \
+      "-x[print remove commands as it executes them]" \
+      "*:importpaths:__go_packages"
+      ;;
+  fix|fmt|list|vet)
+      _alternative ':importpaths:__go_packages' ':files:_path_files -g "*.go"'
+      ;;
+  install)
       _arguments -s -w : ${build_flags[@]} \
         "-v[show package names]" \
-        '*:importpaths:__go_list'
-    ;;
-    get)
+        '*:importpaths:__go_packages'
+      ;;
+  get)
       _arguments -s -w : \
         ${build_flags[@]}
-    ;;
-    build)
+      ;;
+  build)
       _arguments -s -w : \
         ${build_flags[@]} \
         "-v[show package names]" \
         "-o[output file]:file:_files" \
-        "*:args:{ _alternative ':importpaths:__go_list' ':files:_path_files -g \"*.go\"' }"
-    ;;
-    test)
+        "*:args:{ _alternative ':importpaths:__go_packages' ':files:_path_files -g \"*.go\"' }"
+      ;;
+  test)
       _arguments -s -w : \
         ${build_flags[@]} \
         "-c[do not run, compile the test binary]" \
@@ -110,63 +122,72 @@ __go_tool_complete()
         "-cpuprofile[write CPU profile to file]:file:_files" \
         "-memprofile[write heap profile to file]:file:_files" \
         "-memprofilerate[set heap profiling rate]:number" \
-        "*:args:{ _alternative ':importpaths:__go_list' ':files:_path_files -g \"*.go\"' }"
-    ;;
-    help)
+        "*:args:{ _alternative ':importpaths:__go_packages' ':files:_path_files -g \"*.go\"' }"
+      ;;
+  help)
       _values "${commands[@]}" \
         'gopath[GOPATH environment variable]' \
         'packages[description of package lists]' \
         'remote[remote import path syntax]' \
         'testflag[description of testing flags]' \
         'testfunc[description of testing functions]'
-    ;;
-    run)
+      ;;
+  run)
       _arguments -s -w : \
           ${build_flags[@]} \
           '*:file:_path_files -g "*.go"'
-    ;;
-    tool)
+      ;;
+  tool)
       if (( CURRENT == 3 )); then
-        _values "go tool" $(go tool)
-        return
+          _values "go tool" $(go tool)
+          return
       fi
       case ${words[3]} in
       [568]g)
-        _arguments -s -w : \
-          '-I[search for packages in DIR]:includes:_path_files -/' \
-          '-L[show full path in file:line prints]' \
-          '-S[print the assembly language]' \
-          '-V[print the compiler version]' \
-          '-e[no limit on number of errors printed]' \
-          '-h[panic on an error]' \
-          '-l[disable inlining]' \
-          '-m[print optimization decisions]' \
-          '-o[file specify output file]:file' \
-          '-p[assumed import path for this code]:importpath' \
-          '-u[disable package unsafe]' \
-          "*:file:_files -g '*.go'"
-      ;;
+          _arguments -s -w : \
+              '-I[search for packages in DIR]:includes:_path_files -/' \
+              '-L[show full path in file:line prints]' \
+              '-S[print the assembly language]' \
+              '-V[print the compiler version]' \
+              '-e[no limit on number of errors printed]' \
+              '-h[panic on an error]' \
+              '-l[disable inlining]' \
+              '-m[print optimization decisions]' \
+              '-o[file specify output file]:file' \
+              '-p[assumed import path for this code]:importpath' \
+              '-u[disable package unsafe]' \
+              "*:file:_files -g '*.go'"
+          ;;
       [568]l)
-        local O=${words[3]%l}
-        _arguments -s -w : \
-          '-o[file specify output file]:file' \
-          '-L[search for packages in DIR]:includes:_path_files -/' \
-          "*:file:_files -g '*.[ao$O]'"
-      ;;
+          local O=${words[3]%l}
+          _arguments -s -w : \
+              '-o[file specify output file]:file' \
+              '-L[search for packages in DIR]:includes:_path_files -/' \
+              "*:file:_files -g '*.[ao$O]'"
+          ;;
       dist)
-        _values "dist tool" banner bootstrap clean env install version
-      ;;
+          _values "dist tool" banner bootstrap clean env install version
+          ;;
       *)
-        # use files by default
-        _files
+          # use files by default
+          _files
+          ;;
+      esac
       ;;
-    esac
-    ;;
   esac
 }
 
 compdef __go_tool_complete go
 
-# aliases
-alias gfa='go fmt . ./...'
-
+# aliases: go<~>
+alias gob='go build'
+alias goc='go clean'
+alias god='go doc'
+alias gof='go fmt'
+alias gofa='go fmt . ./...'
+alias gog='go get'
+alias goi='go install'
+alias gol='go list'
+alias gor='go run'
+alias got='go test'
+alias gov='go vet'
