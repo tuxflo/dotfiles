@@ -3,8 +3,7 @@
 
 # gem zsh completion, based on homebrew completion
 
-_gem_installed()
-{
+_gem_installed() {
   installed_gems=(${(f)"$(gem list --local --no-versions)"})
 }
 
@@ -71,4 +70,3 @@ case "$words[1]" in
     _gem_installed
     _wanted installed_gems expl 'installed gems' compadd -a installed_gems ;;
 esac
-

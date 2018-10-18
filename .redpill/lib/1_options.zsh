@@ -51,7 +51,7 @@ setopt \
   `# remove any right prompt from display when accepting a command line. This may be useful with terminals with other cut/paste methods` \
   TRANSIENT_RPROMPT \
   `# allow comments even in interactive shells` \
-  INTERACTIVE_COMMENTS \
+  INTERACTIVECOMMENTS \
   `# if a completion is performed with the cursor within a word, and a full completion is inserted, the cursor is moved to the end of the word` \
   ALWAYS_TO_END \
   `# TODO` \

@@ -7,19 +7,18 @@ declare -A opt_args
 declare target_list
 target_list=(`fab --shortlist 2>/dev/null`)
 
-_targets()
-{
-  _describe -t commands "fabric targets" target_list
+_targets() {
+    _describe -t commands "fabric targets" target_list
 }
 
 output_levels=(
-  'status: Status messages, i.e. noting when Fabric is done running, if the user used a keyboard interrupt, or when servers are disconnected from. These messages are almost always relevant and rarely verbose.'
-  'aborts: Abort messages. Like status messages, these should really only be turned off when using Fabric as a library, and possibly not even then. Note that even if this output group is turned off, aborts will still occur – there just won’t be any output about why Fabric aborted!'
-  'warnings: Warning messages. These are often turned off when one expects a given operation to fail, such as when using grep to test existence of text in a file. If paired with setting env.warn_only to True, this can result in fully silent warnings when remote programs fail. As with aborts, this setting does not control actual warning behavior, only whether warning messages are printed or hidden.'
-  'running: Printouts of commands being executed or files transferred, e.g. [myserver] run: ls /var/www. Also controls printing of tasks being run, e.g. [myserver] Executing task ''foo''.'
-  'stdout: Local, or remote, stdout, i.e. non-error output from commands.'
-  'stderr: Local, or remote, stderr, i.e. error-related output from commands.'
-  'user: User-generated output, i.e. local output printed by fabfile code via use of the fastprint or puts functions.'
+    'status: Status messages, i.e. noting when Fabric is done running, if the user used a keyboard interrupt, or when servers are disconnected from. These messages are almost always relevant and rarely verbose.'
+    'aborts: Abort messages. Like status messages, these should really only be turned off when using Fabric as a library, and possibly not even then. Note that even if this output group is turned off, aborts will still occur – there just won’t be any output about why Fabric aborted!'
+    'warnings: Warning messages. These are often turned off when one expects a given operation to fail, such as when using grep to test existence of text in a file. If paired with setting env.warn_only to True, this can result in fully silent warnings when remote programs fail. As with aborts, this setting does not control actual warning behavior, only whether warning messages are printed or hidden.'
+    'running: Printouts of commands being executed or files transferred, e.g. [myserver] run: ls /var/www. Also controls printing of tasks being run, e.g. [myserver] Executing task ''foo''.'
+    'stdout: Local, or remote, stdout, i.e. non-error output from commands.'
+    'stderr: Local, or remote, stderr, i.e. error-related output from commands.'
+    'user: User-generated output, i.e. local output printed by fabfile code via use of the fastprint or puts functions.'
 )
 
 _arguments -w -S -C \
@@ -48,17 +47,14 @@ _arguments -w -S -C \
   '*::: :->subcmds' && return 0
 
 if [[ CURRENT -ge 1 ]]; then
-  case $state in
-    noargs)
-      _message "nothing to complete"
-    ;;
-    levels)
-      _describe -t commands "output levels" output_levels
-    ;;
-    *)
-      _targets
-    ;;
-  esac
+    case $state in
+        noargs)
+             _message "nothing to complete";;
+        levels)
+            _describe -t commands "output levels" output_levels;;
+        *)
+            _targets;;
+    esac
 
-  return
+    return
 fi

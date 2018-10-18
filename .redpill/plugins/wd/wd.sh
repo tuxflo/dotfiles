@@ -8,7 +8,7 @@
 # @github.com/mfaerevaag/wd
 
 # version
-readonly WD_VERSION=0.4
+readonly WD_VERSION=0.4.6
 
 # colors
 readonly WD_BLUE="\033[96m"
@@ -72,23 +72,28 @@ wd_print_msg()
 wd_print_usage()
 {
     cat <<- EOF
-Usage: wd [command] <point>
+Usage: wd [command] [point]
 
 Commands:
-  add <point> Adds the current working directory to your warp points
-  add! <point>  Overwrites existing warp point
-  rm <point>  Removes the given warp point
-  show    Print warp points to current directory
-  show <point>  Print path to given warp point
-  ls    Print all stored warp points
-  clean!    Remove points warping to nonexistent directories
+    add <point>     Adds the current working directory to your warp points
+    add             Adds the current working directory to your warp points with current directory's name
+    add! <point>    Overwrites existing warp point
+    add!            Overwrites existing warp point with current directory's name
+    rm <point>      Removes the given warp point
+    rm              Removes the given warp point with current directory's name
+    show <point>    Print path to given warp point
+    show            Print warp points to current directory
+    list            Print all stored warp points
+    ls  <point>     Show files from given warp point (ls)
+    path <point>    Show the path to given warp point (pwd)
+    clean!          Remove points warping to nonexistent directories
 
-  -v | --version  Print version
-  -d | --debug  Exit after execution with exit codes (for testing)
-  -c | --config Specify config file (default ~/.warprc)
-  -q | --quiet  Suppress all output
+    -v | --version  Print version
+    -d | --debug    Exit after execution with exit codes (for testing)
+    -c | --config   Specify config file (default ~/.warprc)
+    -q | --quiet    Suppress all output
 
-  help    Show this extremely helpful text
+    help            Show this extremely helpful text
 EOF
 }
 
@@ -96,7 +101,7 @@ wd_exit_fail()
 {
     local msg=$1
 
-    wd_print_msg $WD_RED $1
+    wd_print_msg $WD_RED $msg
     WD_EXIT_CODE=1
 }
 
@@ -108,15 +113,32 @@ wd_exit_warn()
     WD_EXIT_CODE=1
 }
 
+wd_getdir()
+{
+    local name_arg=$1
+
+    point=$(wd_show $name_arg)
+    dir=${point:28+$#name_arg+7}
+
+    if [[ -z $name_arg ]]; then
+        wd_exit_fail "You must enter a warp point"
+        break
+    elif [[ -z $dir ]]; then
+        wd_exit_fail "Unknown warp point '${name_arg}'"
+        break
+    fi
+}
+
 # core
 
 wd_warp()
 {
     local point=$1
+    local sub=$2
 
     if [[ $point =~ "^\.+$" ]]
     then
-        if [ $#1 < 2 ]
+        if [[ $#1 < 2 ]]
         then
             wd_exit_warn "Warping to current directory?"
         else
@@ -125,7 +147,12 @@ wd_warp()
         fi
     elif [[ ${points[$point]} != "" ]]
     then
-        cd ${points[$point]}
+        if [[ $sub != "" ]]
+        then
+            cd ${points[$point]/#\~/$HOME}/$sub
+        else
+            cd ${points[$point]/#\~/$HOME}
+        fi
     else
         wd_exit_fail "Unknown warp point '${point}'"
     fi
@@ -136,6 +163,11 @@ wd_add()
     local force=$1
     local point=$2
 
+    if [[ $point == "" ]]
+    then
+        point=$(basename $PWD)
+    fi
+
     if [[ $point =~ "^[\.]+$" ]]
     then
         wd_exit_fail "Warp point cannot be just dots"
@@ -145,13 +177,10 @@ wd_add()
     elif [[ $point == *:* ]]
     then
         wd_exit_fail "Warp point cannot contain colons"
-    elif [[ $point == "" ]]
-    then
-        wd_exit_fail "Warp point cannot be empty"
-    elif [[ ${points[$2]} == "" ]] || $force
+    elif [[ ${points[$point]} == "" ]] || $force
     then
         wd_remove $point > /dev/null
-        printf "%q:%s\n" "${point}" "${PWD}" >> $WD_CONFIG
+        printf "%q:%s\n" "${point}" "${PWD/#$HOME/~}" >> $WD_CONFIG
 
         wd_print_msg $WD_GREEN "Warp point added"
 
@@ -166,6 +195,11 @@ wd_add()
 wd_remove()
 {
     local point=$1
+
+    if [[ $point == "" ]]
+    then
+        point=$(basename $PWD)
+    fi
 
     if [[ ${points[$point]} != "" ]]
     then
@@ -185,6 +219,21 @@ wd_list_all()
 {
     wd_print_msg $WD_BLUE "All warp points:"
 
+    entries=$(sed "s:${HOME}:~:g" $WD_CONFIG)
+
+    max_warp_point_length=0
+    while IFS= read -r line
+    do
+        arr=(${(s,:,)line})
+        key=${arr[1]}
+
+        length=${#key}
+        if [[ length -gt max_warp_point_length ]]
+        then
+            max_warp_point_length=$length
+        fi
+    done <<< $entries
+
     while IFS= read -r line
     do
         if [[ $line != "" ]]
@@ -195,10 +244,22 @@ wd_list_all()
 
             if [[ -z $wd_quiet_mode ]]
             then
-                printf "%20s  ->  %s\n" $key $val
+                printf "%${max_warp_point_length}s  ->  %s\n" $key $val
             fi
         fi
-    done <<< $(sed "s:${HOME}:~:g" $WD_CONFIG)
+    done <<< $entries
+}
+
+wd_ls()
+{
+    wd_getdir $1
+    ls ${dir/#\~/$HOME}
+}
+
+wd_path()
+{
+    wd_getdir $1
+    echo $(echo $dir | sed "s:${HOME}:~:g")
 }
 
 wd_show()
@@ -218,6 +279,7 @@ wd_show()
         local wd_matches
         wd_matches=()
         # do a reverse lookup to check whether PWD is in $points
+        PWD="${PWD/$HOME/~}"
         if [[ ${points[(r)$PWD]} == $PWD ]]
         then
             for name in ${(k)points}
@@ -248,7 +310,7 @@ wd_clean() {
             key=${arr[1]}
             val=${arr[2]}
 
-            if [ -d "$val" ]
+            if [ -d "${val/#\~/$HOME}" ]
             then
                 wd_tmp=$wd_tmp"\n"`echo $line`
             else
@@ -310,13 +372,14 @@ while read -r line
 do
     arr=(${(s,:,)line})
     key=${arr[1]}
-    val=${arr[2]}
+    # join the rest, in case the path contains colons
+    val=${(j,:,)arr[2,-1]}
 
     points[$key]=$val
 done < $WD_CONFIG
 
 # get opts
-args=$(getopt -o a:r:c:lhs -l add:,rm:,clean\!,ls,help,show -- $*)
+args=$(getopt -o a:r:c:lhs -l add:,rm:,clean\!,list,ls:,path:,help,show -- $*)
 
 # check if no arguments were given, and that version is not set
 if [[ ($? -ne 0 || $#* -eq 0) && -z $wd_print_version ]]
@@ -349,8 +412,16 @@ else
                 wd_remove $2
                 break
                 ;;
-            -l|--list|ls)
+            -l|list)
                 wd_list_all
+                break
+                ;;
+            -ls|ls)
+                wd_ls $2
+                break
+                ;;
+            -p|--path|path)
+                wd_path $2
                 break
                 ;;
             -h|--help|help)
@@ -370,7 +441,7 @@ else
                 break
                 ;;
             *)
-                wd_warp $o
+                wd_warp $o $2
                 break
                 ;;
             --)

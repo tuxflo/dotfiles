@@ -7,27 +7,22 @@
 # ------------------------------------------------------------------------------
 
 if [ ! -x $(which ack) ]; then
-  echo  \'ack\' is not installed!
-  exit -1
+    echo  \'ack\' is not installed!
+    exit -1
 fi
 
-ajs()
-{
-  ack "$@" --type js
+ajs() {
+    ack "$@" --type js
 }
 
-acss()
-{
-  ack "$@" --type css
+acss() {
+    ack "$@" --type css
 }
 
-fjs()
-{
-  find ./ -name "$@*" -type f | grep '\.js'
+fjs() {
+    find ./ -name "$@*" -type f | grep '\.js'
 }
 
-fcss()
-{
-  find ./ -name "$@*" -type f | grep '\.css'
+fcss() {
+    find ./ -name "$@*" -type f | grep '\.css'
 }
-

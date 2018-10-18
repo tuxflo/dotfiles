@@ -22,36 +22,31 @@ zle -N zle-line-finish _zle_line_finish
 zle -N paste-insert _paste_insert
 
 # switch the active keymap to paste mode
-_start_paste()
-{
+function _start_paste() {
   bindkey -A paste main
 }
 
 # go back to our normal keymap, and insert all the pasted text in the
 # command line. this has the nice effect of making the whole paste be
 # a single undo/redo event.
-_end_paste()
-{
-  #use bindkey -v here with vi mode probably. maybe you want to track
-  #if you were in ins or cmd mode and restore the right one.
+function _end_paste() {
+#use bindkey -v here with vi mode probably. maybe you want to track
+#if you were in ins or cmd mode and restore the right one.
   bindkey -e
   LBUFFER+=$_paste_content
   unset _paste_content
 }
 
-_paste_insert()
-{
+function _paste_insert() {
   _paste_content+=$KEYS
 }
 
-_zle_line_init()
-{
+function _zle_line_init() {
   # Tell terminal to send escape codes around pastes.
   [[ $TERM == rxvt-unicode || $TERM == xterm || $TERM = xterm-256color || $TERM = screen || $TERM = screen-256color ]] && printf '\e[?2004h'
 }
 
-_zle_line_finish()
-{
+function _zle_line_finish() {
   # Tell it to stop when we leave zle, so pasting in other programs
   # doesn't get the ^[[200~ codes around the pasted text.
   [[ $TERM == rxvt-unicode || $TERM == xterm || $TERM = xterm-256color || $TERM = screen || $TERM = screen-256color ]] && printf '\e[?2004l'

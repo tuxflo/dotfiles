@@ -1,7 +1,6 @@
 #compdef powify
 
-_powify_all_servers()
-{
+_powify_all_servers() {
   all_servers=(`ls $HOME/.pow/ 2>/dev/null`)
 }
 
@@ -54,4 +53,3 @@ case "$words[1]" in
     _powify_all_servers
     _wanted all_servers expl 'all pow servers' compadd -a all_servers ;;
 esac
-

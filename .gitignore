@@ -134,6 +134,8 @@ Temporary Items
 
 
 # user settings
+.extra
+ .vimrc.extra
 .path
 
 # Ctags file

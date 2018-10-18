@@ -1,17 +1,14 @@
 # if using GNU screen, let the zsh tell screen what the title and hardstatus
 # of the tab window should be.
-
 if [[ "$TERM" == screen* ]]; then
-
   if [[ $_GET_PATH == '' ]]; then
     _GET_PATH='echo $PWD | sed "s/^\/Users\//~/;s/^\/home\//~/;s/^~$USER/~/"'
   fi
-
   if [[ $_GET_HOST == '' ]]; then
     _GET_HOST='echo $HOST | sed "s/\..*//"'
   fi
 
-  # use the current user as the prefix of the current tab title
+  # use the current user as the prefix of the current tab title 
   TAB_TITLE_PREFIX='"`'$_GET_HOST'`:`'$_GET_PATH' | sed "s:..*/::"`$PROMPT_CHAR"'
   # when at the shell prompt, show a truncated version of the current path (with
   # standard ~ replacement) as the rest of the title.
@@ -31,7 +28,7 @@ if [[ "$TERM" == screen* ]]; then
   TAB_HARDSTATUS_EXEC='$cmd'
 
   # tell GNU screen what the tab window title ($1) and the hardstatus($2) should be
-  screen_set()
+  function screen_set()
   {
     # set the tab window title (%t) for screen
     print -nR $'\033k'$1$'\033'\\\
@@ -39,18 +36,16 @@ if [[ "$TERM" == screen* ]]; then
     # set hardstatus of tab window (%h) for screen
     print -nR $'\033]0;'$2$'\a'
   }
-
   # called by zsh before executing a command
-  preexec()
+  function preexec()
   {
     local -a cmd; cmd=(${(z)1}) # the command string
     eval "tab_title=$TAB_TITLE_PREFIX:$TAB_TITLE_EXEC"
     eval "tab_hardstatus=$TAB_HARDSTATUS_PREFIX:$TAB_HARDSTATUS_EXEC"
     screen_set $tab_title $tab_hardstatus
   }
-
   # called by zsh before showing the prompt
-  precmd()
+  function precmd()
   {
     eval "tab_title=$TAB_TITLE_PREFIX:$TAB_TITLE_PROMPT"
     eval "tab_hardstatus=$TAB_HARDSTATUS_PREFIX:$TAB_HARDSTATUS_PROMPT"

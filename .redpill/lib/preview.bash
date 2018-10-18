@@ -3,7 +3,7 @@ then
   unset BASH_PREVIEW #Prevent infinite looping
   echo "
 
-  Previewing Bash-it Themes
+  Previewing Bash Themes
 
   "
 

@@ -30,16 +30,19 @@ key[PageDown]=${terminfo[knp]}
 # Finally, make sure the terminal is in application mode, when zle is
 # active. Only then are the values from $terminfo valid.
 
-zle-line-init ()
+zle-line-init()
 {
+  if [[ "${terminfo[smkx]}" != "" ]]; then
     echoti smkx
+  fi
 }
-
 zle -N zle-line-init
 
-zle-line-finish ()
+zle-line-finish()
 {
+  if [[ "${terminfo[rmkx]}" != "" ]]; then
     echoti rmkx
+  fi
 }
 zle -N zle-line-finish
 
@@ -104,7 +107,7 @@ fi
 # edit the current command line in $EDITOR
 bindkey '\C-x\C-e' edit-command-line
 
-## file rename magick
+# file rename magick
 bindkey "^[m" copy-prev-shell-word
 
 # consider emacs keybindings:

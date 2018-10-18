@@ -1,0 +1,75 @@
+# This theme for gitprompt.sh is optimized for "red-pill"
+
+override_git_prompt_colors() {
+
+  # Local or SSH session?
+  local remote=""
+  [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ] && remote=1
+
+  # set the user-color
+  local user_color=$COLOR_LIGHT_GREEN           # user's color
+  [ $UID -eq 0 ] && user_color=$COLOR_RED       # root's color
+
+  # set the user
+  local user=""
+  if [[ -z $CONFIG_DEFAULT_USER ]] || [[ "$CONFIG_DEFAULT_USER" != "$USER" ]]; then
+    user=$USER
+  fi
+
+  # set the hostname inside SSH session
+  local host=""
+  [ -n "$remote" ] && host="\[$COLOR_LIGHT_GREEN\]${ICON_FOR_AT}\h"
+
+  # set extra ":" after user || host
+  local userOrHostExtra=""
+  if [[ -n "$host" ]] || [[ -n "$user" ]]; then
+    userOrHostExtra="\[$user_color\]:"
+  fi
+
+  local isCygwinMings=false
+  [[ $SYSTEM_TYPE == "CYGWIN" || $SYSTEM_TYPE == "MINGW" ]] && isCygwinMings=true
+
+  if [[ "$(tty)" == /dev/pts/* ]] || $isCygwinMings; then
+    if [[ -n $remote ]] && [[ $COLORTERM = gnome-* && $TERM = xterm ]] && infocmp gnome-256color >/dev/null 2>&1; then
+      export TERM='gnome-256color'
+    elif infocmp xterm-256color >/dev/null 2>&1; then
+      export TERM='xterm-256color'
+    elif $isCygwinMings ; then
+      export TERM='xterm-256color'
+    fi
+  fi
+
+  # Terminal title
+  local TITLE=""
+  # echo title sequence only for pseudo terminals
+  # real tty do not support title escape sequences.
+  if [[ "$(tty)" == /dev/pts/* ]] || $isCygwinMings; then
+    TITLE="\[\033]0;${USER}@${HOSTNAME}: \w\007\]"
+  fi
+
+  GIT_PROMPT_THEME_NAME="voku"
+  GIT_PROMPT_STAGED="${Red}+"
+  GIT_PROMPT_CHANGED="${Green}*"
+  GIT_PROMPT_UNTRACKED=" ${Cyan}${ICON_FOR_UNTRACKED}"
+  GIT_PROMPT_STASHED="${BoldMagenta}${ICON_FOR_STASHED}"
+  GIT_PROMPT_CLEAN="${Green}${ICON_FOR_TRUE}"
+  GIT_PROMPT_COMMAND_OK="${Green}${ICON_FOR_TRUE}"
+  GIT_PROMPT_COMMAND_FAIL="${Red}${ICON_FOR_FALSE}"
+
+  # INFO:   Text (commands) inside \[...\] does not impact line length calculation which fixes stange bug when looking through the history
+  #         $? is a status of last command, should be processed every time prompt prints
+
+  # Format prompt
+  local ps1="${TITLE}\`if [ \$? -eq 0 ]; then echo -e \[\$COLOR_GREEN\]\${ICON_FOR_TRUE}; else echo -e \[\$COLOR_RED\]\${ICON_FOR_FALSE}; fi\` \[$user_color\]${user}${host}${userOrHostExtra}\[$COLOR_LIGHT_BLUE\]\w\[$COLOR_LIGHT_RED\]${ICON_FOR_ARROW_RIGHT}\[$COLOR_NO_COLOUR\]"
+
+  # Multiline command
+  local ps2=" "
+
+  GIT_PROMPT_START_USER="${ps1}"
+  GIT_PROMPT_START_ROOT="${ps1}"
+
+  GIT_PROMPT_END_USER="${ps2}"
+  GIT_PROMPT_END_ROOT="${ps2}"
+}
+
+reload_git_prompt_colors "voku"

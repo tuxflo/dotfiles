@@ -1,4 +1,4 @@
-## aliases
+## Aliases
 
 alias ys="yum search"                       # search package
 alias yp="yum info"                         # show package info

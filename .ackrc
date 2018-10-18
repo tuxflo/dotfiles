@@ -22,6 +22,7 @@
 # HTML / PHP templates.
 --type-set=tpl=.tpl,.twig
 --type-add=html=.tpl,.twig,.html.erb,.html.haml,.hbs
+--type-add=twig=.twig
 --type-add=php=.php
 
 # Ruby

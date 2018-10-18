@@ -11,25 +11,17 @@
 # It assumes Shift+Cmd+G launches go to folder panel and Cmd+N opens new
 # app window.
 #
-# Changes:
-# 23.09.2013 Use keystroke return instead referencing "Go" button (by bitboxer)
-#
 # https://gist.github.com/3313481
-
-fl()
-{
-  local dir_tmp pwd_tmp
-
+function fl {
   if [ ! -z "$1" ]; then
-    dir_tmp=$1
-    if [ ! -d "$dir_tmp" ]; then
-      dir_tmp=$(dirname $dir_tmp)
+    DIR=$1
+    if [ ! -d "$DIR" ]; then
+      DIR=$(dirname $DIR)
     fi
-    if [ "$dir_tmp" != "." ]; then
-      pwd_tmp=`cd 2>/dev/null "$dir_tmp" && pwd`
+    if [ "$DIR" != "." ]; then
+      PWD=`cd "$DIR";pwd`
     fi
   fi
-
   osascript 2>&1 1>/dev/null <<END
 
     try
@@ -68,7 +60,7 @@ fl()
         end try
         keystroke "g" using {command down, shift down}
         tell sheet 1 of topWindow
-          set value of text field 1 to "$pwd_tmp"
+          set value of text field 1 to "$PWD"
           keystroke return
         end tell
       end tell

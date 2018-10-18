@@ -1,3 +1,3 @@
-# aliases
-alias pylint-quick='pylint --reports=n --include-ids=y'
-compdef _pylint-quick pylint-quick='pylint --reports=n --include-ids=y'
+# Aliases
+alias pylint-quick='pylint --reports=n'
+compdef _pylint-quick pylint-quick='pylint --reports=n'

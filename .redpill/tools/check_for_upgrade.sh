@@ -7,30 +7,30 @@ _current_epoch()
 
 _update_zsh_update()
 {
-  echo "LAST_EPOCH=$(_current_epoch)" >! ~/.zsh-update
+  echo "LAST_EPOCH=$(_current_epoch)" > ~/.zsh-update
 }
 
 _upgrade_zsh()
 {
-  env ZSH=$ZSH /bin/sh $ZSH/tools/upgrade.sh
+  env ZSH=$ZSH sh $ZSH/tools/upgrade.sh
   # update the zsh file
   _update_zsh_update
 }
 
 epoch_target=$UPDATE_ZSH_DAYS
-if [[ -z "$epoch_target" ]]; then
+if [ -z "$epoch_target" ]; then
   # Default to old behavior
   epoch_target=13
 fi
 
 # Cancel upgrade if the current user doesn't have write permissions for the
 # red-pill directory.
-[[ -w "$ZSH" ]] || return 0
+[ -w "$ZSH" ] || return 0
 
 if [ -f ~/.zsh-update ]; then
   . ~/.zsh-update
 
-  if [[ -z "$LAST_EPOCH" ]]; then
+  if [ -z "$LAST_EPOCH" ]; then
     _update_zsh_update && return 0;
   fi
 
@@ -44,7 +44,7 @@ if [ -f ~/.zsh-update ]; then
       echo "Type Y to update red-pill: \c"
       read line
 
-      if [ "$line" = Y ] || [ "$line" = y ]; then
+      if [ "$line" = "Y" ] || [ "$line" = "y" ]; then
         _upgrade_zsh
       else
         _update_zsh_update

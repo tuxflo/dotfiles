@@ -6,17 +6,20 @@ if [[ $- != *i* ]] || [ -z "$PS1" ]; then
   return 0
 fi
 
-# windows git bash is too minimal
-if [[ "$(bash --version)" == *-pc-msys* ]]; then
+# windows git bash version 3 is too minimal
+bashVersionTmp="$(bash --version | grep -v "version 4")"
+if [[ "$bashVersionTmp" == *-pc-msys* ]]; then
+  . ~/.extra
   return 0
 fi
+unset bashVersionTmp
 
 ############# INCLUDE ####################################
 
 # load the shell dotfiles, and then some:
 # * ~/.path can be used to extend `$PATH`.
 # * ~/.extra can be used for other settings you don’t want to commit.
-for file in ~/.{config_dotfiles,path,load,colors,exports,icons,aliases,bash_complete,functions,extra}; do
+for file in ~/.{config_dotfiles,path,load,colors,exports,icons,aliases,bash_complete,functions,extra,dotfilecheck}; do
   [ -r "$file" ] && [ -f "$file" ] && source "$file"
 done
 unset file
@@ -68,6 +71,11 @@ if [ -d $HOME/.redpill ]; then
 
   # define the path from "red-pill"
   export REDPILL=$HOME/.redpill
+
+  # Which plugins would you like to load? (plugins can be found in ~/.redpill/plugins/available/*)
+  # Example format: plugins=(rails git textmate ruby lighthouse)
+  # Add wisely, as too many plugins slow down shell startup.
+  plugins=$(echo $CONFIG_BASH_PLUGINS | sed 's/(//g' | sed 's/)//g')
 
   source $HOME/.redpill/redpill-init-bash.sh
 fi

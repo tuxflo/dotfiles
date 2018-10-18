@@ -37,12 +37,12 @@ if (( CURRENT == 2 )); then
 fi
 
 case "$words[2]" in
-  help)
-    _describe -t commands "meteor subcommand" _1st_arguments ;;
-  remove)
-    _meteor_installed_packages
-    _wanted installed_packages expl 'installed packages' compadd -a installed_packages ;;
-  add)
-    _meteor_all_packages
-    _wanted packages expl 'all packages' compadd -a packages ;;
+    help)
+      _describe -t commands "meteor subcommand" _1st_arguments ;;
+    remove)
+      _meteor_installed_packages
+      _wanted installed_packages expl 'installed packages' compadd -a installed_packages ;;
+    add)
+      _meteor_all_packages
+      _wanted packages expl 'all packages' compadd -a packages ;;
 esac

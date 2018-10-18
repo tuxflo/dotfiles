@@ -52,4 +52,3 @@ if [ -f /etc/bashrc ]; then
 fi
 
 source ~/.bash_profile
-source ~/.shellrc

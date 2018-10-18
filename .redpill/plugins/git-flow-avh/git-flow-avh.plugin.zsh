@@ -17,7 +17,7 @@
 #
 #            source ~/.git-flow-completion.zsh
 #
-#     c. Or, use this file as a red-pill plugin.
+#     c. Or, use this file as a oh-my-zsh plugin.
 #
 
 _git-flow ()

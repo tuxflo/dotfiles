@@ -1,11 +1,11 @@
 cite about-plugin
-about-plugin 'alias "http" to SimpleHTTPServer'
+about-plugin 'alias "shttp" to SimpleHTTPServer'
 
 if [ $(uname) = "Linux" ]
 then
-  alias http='python2 -m SimpleHTTPServer'
+  alias shttp='python2 -m SimpleHTTPServer'
 else
-  alias http='python -m SimpleHTTPServer'
+  alias shttp='python -m SimpleHTTPServer'
 fi
 
 function pyedit() {
@@ -14,7 +14,7 @@ function pyedit() {
     example '$ pyedit requests'
     group 'python'
 
-    xpyc=`python -c "import sys; stdout = sys.stdout; sys.stdout = sys.stderr; import $1; stdout.write($1.__file__)"`
+    xpyc=`python -c "import os, sys; f = open(os.devnull, 'w'); sys.stderr = f; module = __import__('$1'); sys.stdout.write(module.__file__)"`
 
     if [ "$xpyc" == "" ]; then
         echo "Python module $1 not found"

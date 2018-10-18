@@ -7,8 +7,7 @@
 # Github: https://github.com/posva/catimg                                      #
 ################################################################################
 
-function help()
-{
+function help() {
   echo "Usage catimg [-h] [-w width] [-c char] img"
   echo "By default char is \"  \" and w is the terminal width"
 }
@@ -44,7 +43,6 @@ if [ ! "$WIDTH" ]; then
 else
   COLS=$(expr $WIDTH "/" $(echo -n "$CHAR" | wc -c))
 fi
-
 WIDTH=$(convert "$IMG" -print "%w\n" /dev/null)
 if [ "$WIDTH" -gt "$COLS" ]; then
   WIDTH=$COLS

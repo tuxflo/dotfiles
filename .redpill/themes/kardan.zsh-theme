@@ -1,8 +1,7 @@
 # Simple theme based on my old zsh settings.
 
-get_host()
-{
-  echo '@'$HOST
+function get_host {
+	echo '@'$HOST
 }
 
 PROMPT='> '

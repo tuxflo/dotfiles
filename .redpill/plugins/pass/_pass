@@ -13,10 +13,8 @@
 # Oh my zsh plugin maintainer: Santiago Borrazás <sanbor@gmail.com>
 
 
-_pass ()
-{
+_pass () {
 	local cmd
-
 	if (( CURRENT > 2)); then
 		cmd=${words[2]}
 		# Set the context for the subcommand.
